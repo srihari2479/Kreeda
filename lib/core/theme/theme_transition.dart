@@ -118,10 +118,12 @@ class ThemeTransitionWrapperState extends State<ThemeTransitionWrapper>
   void initState() {
     super.initState();
     ThemeTransition.ensureInitialized();
-    // 550ms responsive, cinematic circular reveal with easeInOutCubic curve
+    // 800ms user-friendly, cinematic circular reveal with easeInOutCubic curve
+    // Perfectly tuned so the user vividly feels and observes the expanding wave
+    // across the screen at solid 60-120 FPS.
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 550),
+      duration: const Duration(milliseconds: 800),
     );
     _animation = CurvedAnimation(
       parent: _controller,
@@ -225,9 +227,9 @@ class ThemeTransitionWrapperState extends State<ThemeTransitionWrapper>
 
       if (!mounted) return;
 
-      // Synchronize bottom system bar transition with the wavefront
+      // Synchronize bottom system bar transition with the wavefront arriving at dock
       void progressListener() {
-        if (_controller.value >= 0.70 &&
+        if (_controller.value >= 0.72 &&
             ThemeTransition.isNavDarkNotifier.value != _isDarkTarget) {
           ThemeTransition.isNavDarkNotifier.value = _isDarkTarget;
         }
@@ -342,26 +344,37 @@ class _CircularRevealPainter extends CustomPainter {
     canvas.restore();
 
     // 3. Kreeda Electric Energy Orange luminous rim at wavefront edge
+    // Dual-layer vector bloom (soft ambient halo + sharp energetic edge)
     // Strictly clipped above the bottom safe inset to prevent bleeding
     // into the Android gesture bar or navigation bar.
     if (progress > 0.0 && progress < 1.0) {
-      final ringAlpha = (math.sin(progress * math.pi) * 0.65).clamp(0.0, 1.0);
+      final ringAlpha = (math.sin(progress * math.pi) * 0.75).clamp(0.0, 1.0);
       final ringColor = isDarkTarget
           ? AppColors.primaryOrangeLight
           : AppColors.primaryOrange;
-
-      final ringPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.5
-        ..color = ringColor.withValues(alpha: ringAlpha)
-        ..isAntiAlias = true;
 
       canvas.save();
       final clipBottomInset = bottomSafePadding > 0 ? bottomSafePadding : 8.0;
       canvas.clipRect(
         Rect.fromLTWH(0, 0, size.width, size.height - clipBottomInset),
       );
+
+      // Layer A: Soft outer ambient bloom (5.0px width)
+      final bloomPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 5.0
+        ..color = ringColor.withValues(alpha: ringAlpha * 0.35)
+        ..isAntiAlias = true;
+      canvas.drawCircle(origin, currentRadius, bloomPaint);
+
+      // Layer B: Core luminous wavefront rim (2.2px width)
+      final ringPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.2
+        ..color = ringColor.withValues(alpha: ringAlpha)
+        ..isAntiAlias = true;
       canvas.drawCircle(origin, currentRadius, ringPaint);
+
       canvas.restore();
     }
   }
