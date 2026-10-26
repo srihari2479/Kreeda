@@ -171,9 +171,9 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                       ThemeTransition.toggleTheme(btnContext, origin: origin);
                     },
                     child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 750),
-                      switchInCurve: Curves.easeInOutCubic,
-                      switchOutCurve: Curves.easeInOutCubic,
+                      duration: const Duration(milliseconds: 950),
+                      switchInCurve: Curves.fastOutSlowIn,
+                      switchOutCurve: Curves.fastOutSlowIn,
                       transitionBuilder: (child, anim) => RotationTransition(
                         turns: anim,
                         child: ScaleTransition(scale: anim, child: child),
