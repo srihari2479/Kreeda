@@ -219,7 +219,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                         : (hasValue
                             ? AppColors.primaryOrange.withValues(alpha: 0.5)
                             : AppColors.border(context)),
-                    width: isCellFocused ? 2.0 : 1.2,
+                    width: isCellFocused ? 1.5 : 0.8,
                   ),
                   boxShadow: isCellFocused ? AppShadows.orangeGlow : [],
                 ),

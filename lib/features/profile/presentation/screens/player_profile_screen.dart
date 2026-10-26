@@ -98,7 +98,7 @@ class PlayerProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: AppColors.border(context),
-          width: 1.0,
+          width: 0.8,
         ),
         boxShadow: AppShadows.neumorphic(context),
       ),
@@ -204,7 +204,7 @@ class PlayerProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: AppColors.border(context),
-          width: 1.0,
+          width: 0.8,
         ),
         boxShadow: AppShadows.neumorphic(context),
       ),
@@ -233,8 +233,8 @@ class PlayerProfileScreen extends StatelessWidget {
                           : AppColors.surfaceElevated(context),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isBigScore ? AppColors.primaryOrange : AppColors.border(context),
-                        width: 1.0,
+                        color: isBigScore ? AppColors.primaryOrange.withValues(alpha: 0.6) : AppColors.border(context),
+                        width: 0.8,
                       ),
                     ),
                     child: Text(
@@ -285,7 +285,7 @@ class PlayerProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: AppColors.border(context),
-          width: 1.0,
+          width: 0.8,
         ),
         boxShadow: AppShadows.neumorphic(context),
       ),
@@ -334,7 +334,7 @@ class PlayerProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: AppColors.border(context),
-          width: 1.0,
+          width: 0.8,
         ),
         boxShadow: AppShadows.neumorphic(context),
       ),
@@ -377,7 +377,7 @@ class PlayerProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: AppColors.border(context),
-          width: 1.0,
+          width: 0.8,
         ),
         boxShadow: AppShadows.neumorphic(context),
       ),
@@ -444,7 +444,7 @@ class PlayerProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: AppColors.border(context),
-          width: 1.0,
+          width: 0.8,
         ),
         boxShadow: AppShadows.neumorphic(context),
       ),
@@ -576,7 +576,7 @@ class PlayerProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: AppColors.border(context),
-          width: 1.0,
+          width: 0.8,
         ),
         boxShadow: AppShadows.neumorphic(context),
       ),

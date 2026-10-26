@@ -19,7 +19,7 @@ class LiveMatchCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: AppColors.border(context),
-              width: 1.0,
+              width: 0.8,
             ),
             gradient: LinearGradient(
               colors: AppColors.isDark(context)

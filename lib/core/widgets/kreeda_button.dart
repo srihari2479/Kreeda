@@ -76,7 +76,7 @@ class _KreedaButtonState extends State<KreedaButton> {
             color: bg,
             borderRadius: BorderRadius.circular(widget.borderRadius),
             border: widget.isSecondary
-                ? Border.all(color: AppColors.border(context), width: 1.2)
+                ? Border.all(color: AppColors.border(context), width: 0.85)
                 : null,
             boxShadow: widget.isSecondary
                 ? AppShadows.neumorphic(context)

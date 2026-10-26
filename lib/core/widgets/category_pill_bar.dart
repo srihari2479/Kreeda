@@ -63,9 +63,9 @@ class _CategoryPillBarState extends State<CategoryPillBar> {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isSelected
-                        ? AppColors.primary(context).withValues(alpha: 0.45)
+                        ? AppColors.primary(context).withValues(alpha: 0.35)
                         : AppColors.border(context),
-                    width: 1.2,
+                    width: 0.85,
                   ),
                   boxShadow: isSelected
                       ? [

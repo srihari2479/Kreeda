@@ -1,36 +1,37 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
-/// Subtle Neumorphic and Material 3 elevation shadows for Kreeda.
+/// Ultra-soft, low-opacity tactile elevation and neumorphic surfaces for Kreeda.
+/// Enforces feather-light, modern ambient diffuse shadows across the entire app.
 class AppShadows {
-  // Light Mode Subtle Neumorphism (Soft dual-layer specular & diffuse shadows)
+  // Light Mode Ultra-Soft Neumorphism (Soft diffuse ambient drop + specular top highlight)
   static const List<BoxShadow> neumorphicLight = [
     BoxShadow(
       color: Colors.white,
-      offset: Offset(-3, -3),
-      blurRadius: 7,
-      spreadRadius: 1,
+      offset: Offset(-2, -2),
+      blurRadius: 6,
+      spreadRadius: 0,
     ),
     BoxShadow(
-      color: Color(0xFFD3DCE8),
-      offset: Offset(3, 4),
-      blurRadius: 8,
+      color: Color(0x0C0F172A), // Low-opacity soft ambient shadow (4.7% slate)
+      offset: Offset(0, 3),
+      blurRadius: 10,
       spreadRadius: 0,
     ),
   ];
 
-  // Dark Mode Subtle Neumorphism (Gleam highlight & deep stadium shadow)
+  // Dark Mode Ultra-Soft Neumorphism (Specular top edge gleam + soft deep stadium shadow)
   static const List<BoxShadow> neumorphicDark = [
     BoxShadow(
-      color: Color(0xFF1C273E),
-      offset: Offset(-2, -2),
-      blurRadius: 5,
+      color: Color(0x0DFFFFFF), // 5% specular top gleam
+      offset: Offset(-1, -1),
+      blurRadius: 4,
       spreadRadius: 0,
     ),
     BoxShadow(
-      color: Color(0xFF04070D),
-      offset: Offset(3, 4),
-      blurRadius: 8,
+      color: Color(0x38000000), // 22% soft deep ambient shadow
+      offset: Offset(0, 4),
+      blurRadius: 10,
       spreadRadius: 0,
     ),
   ];
@@ -40,33 +41,33 @@ class AppShadows {
     return AppColors.isDark(context) ? neumorphicDark : neumorphicLight;
   }
 
-  // Active / Pressed Neumorphic State (Flat/inset feel)
+  // Active / Pressed Neumorphic State (Flat/inset gentle feel)
   static List<BoxShadow> pressed(BuildContext context) {
     final isDark = AppColors.isDark(context);
     return [
       BoxShadow(
-        color: isDark ? const Color(0xFF060911) : const Color(0xFFE2E8F0),
-        offset: const Offset(1, 1),
-        blurRadius: 3,
+        color: isDark ? const Color(0x26000000) : const Color(0x0A0F172A),
+        offset: const Offset(0, 1),
+        blurRadius: 2,
         spreadRadius: 0,
       ),
     ];
   }
 
-  // Floating Brand Glow (e.g. for Orange CTA buttons, Live badge)
+  // Floating Brand Glow (Softened 22% alpha)
   static List<BoxShadow> orangeGlow = [
     BoxShadow(
-      color: AppColors.primaryOrange.withValues(alpha: 0.38),
+      color: AppColors.primaryOrange.withValues(alpha: 0.22),
       offset: const Offset(0, 4),
       blurRadius: 12,
       spreadRadius: 0,
     ),
   ];
 
-  // Kreeda Pass Golden Glow
+  // Kreeda Pass Golden Glow (Softened 20% alpha)
   static List<BoxShadow> goldGlow = [
     BoxShadow(
-      color: AppColors.passGold.withValues(alpha: 0.35),
+      color: AppColors.passGold.withValues(alpha: 0.20),
       offset: const Offset(0, 4),
       blurRadius: 10,
       spreadRadius: 0,

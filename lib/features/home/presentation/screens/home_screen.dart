@@ -323,7 +323,7 @@ class HomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: AppColors.border(context),
-            width: 1.0,
+            width: 0.8,
           ),
           boxShadow: AppShadows.neumorphic(context),
         ),
@@ -521,7 +521,7 @@ class HomeScreen extends StatelessWidget {
                   color: t.isLive
                       ? AppColors.primaryOrange
                       : AppColors.border(context),
-                  width: 1.0,
+                  width: 0.8,
                 ),
                 boxShadow: AppShadows.neumorphic(context),
               ),
@@ -803,8 +803,8 @@ class HomeScreen extends StatelessWidget {
                     : lightBg,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: color.withValues(alpha: 0.3),
-                  width: 1.0,
+                  color: color.withValues(alpha: 0.22),
+                  width: 0.8,
                 ),
               ),
               child: Column(

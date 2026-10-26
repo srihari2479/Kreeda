@@ -30,7 +30,7 @@ class SectionDividerTitle extends StatelessWidget {
     this.lineColor,
     this.style,
     this.padding = const EdgeInsets.symmetric(vertical: 8),
-    this.lineThickness = 1.0,
+    this.lineThickness = 0.8,
     this.spacing = 8.0,
     this.fontSize = 12.0,
     this.isDashed = false,
@@ -43,7 +43,7 @@ class SectionDividerTitle extends StatelessWidget {
     this.lineColor,
     this.style,
     this.padding = const EdgeInsets.symmetric(vertical: 8),
-    this.lineThickness = 1.0,
+    this.lineThickness = 0.8,
     this.spacing = 8.0,
     this.fontSize = 12.0,
   }) : isDashed = true;

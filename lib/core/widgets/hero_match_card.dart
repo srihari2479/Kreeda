@@ -159,16 +159,16 @@ class _HeroMatchCardState extends State<HeroMatchCard> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isDark ? AppColors.border(context) : const Color(0xFFCBD5E1),
-            width: 1.0,
+            color: AppColors.border(context),
+            width: 0.8,
           ),
           boxShadow: [
             BoxShadow(
               color: isDark
-                  ? Colors.black.withValues(alpha: 0.35)
-                  : const Color(0x180F172A),
+                  ? Colors.black.withValues(alpha: 0.25)
+                  : const Color(0x0C0F172A),
               blurRadius: 10,
-              offset: const Offset(0, 4),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -482,9 +482,7 @@ class _HeroMatchCardState extends State<HeroMatchCard> {
                                 : const Color(0xFFF1F5F9),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: isDark
-                                  ? Colors.white.withValues(alpha: 0.15)
-                                  : const Color(0xFFCBD5E1),
+                              color: AppColors.borderSubtle(context),
                               width: 0.8,
                             ),
                           ),

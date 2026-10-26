@@ -28,7 +28,7 @@ class NeumorphicContainer extends StatefulWidget {
     this.borderRadius = 16.0,
     this.backgroundColor,
     this.borderColor,
-    this.borderWidth = 1.0,
+    this.borderWidth = 0.8,
     this.onTap,
     this.isPressed = false,
     this.width,

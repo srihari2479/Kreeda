@@ -263,16 +263,14 @@ class KreedaBottomNav extends StatelessWidget {
                 : Colors.white.withValues(alpha: 0.86),
             borderRadius: BorderRadius.circular(32),
             border: Border.all(
-              color: isDark
-                  ? borderColor.withValues(alpha: 0.8)
-                  : const Color(0xFFE2E8F0).withValues(alpha: 0.85),
-              width: 1.0,
+              color: borderColor,
+              width: 0.8,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.38 : 0.08),
+                color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.05),
                 blurRadius: 16,
-                offset: const Offset(0, 5),
+                offset: const Offset(0, 4),
                 spreadRadius: 0,
               ),
               if (isDark)

@@ -51,12 +51,12 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.borderLight, width: 1),
+          side: const BorderSide(color: AppColors.borderLight, width: 0.8),
         ),
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.borderLight,
-        thickness: 1,
+        thickness: 0.8,
         space: 1,
       ),
     );
@@ -107,12 +107,12 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.borderDark, width: 1),
+          side: const BorderSide(color: AppColors.borderDark, width: 0.8),
         ),
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.borderDark,
-        thickness: 1,
+        thickness: 0.8,
         space: 1,
       ),
     );

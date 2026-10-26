@@ -273,8 +273,8 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
           color: isDark ? AppColors.surfaceElevated(context) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isDark ? AppColors.border(context) : const Color(0xFFE2E8F0),
-            width: 1.0,
+            color: AppColors.border(context),
+            width: 0.8,
           ),
           boxShadow: isDark
               ? null
@@ -375,8 +375,8 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
             color: isDark ? AppColors.surfaceElevated(context) : Colors.white,
             shape: BoxShape.circle,
             border: Border.all(
-              color: isDark ? AppColors.border(context) : const Color(0xFFE2E8F0),
-              width: 0.9,
+              color: AppColors.border(context),
+              width: 0.8,
             ),
             boxShadow: isDark
                 ? null

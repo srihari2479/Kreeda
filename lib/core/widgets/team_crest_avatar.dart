@@ -71,10 +71,10 @@ class TeamCrestAvatar extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: border, width: 1.5),
+        border: Border.all(color: border, width: 1.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.16),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 4,
             offset: const Offset(0, 1.5),
           ),

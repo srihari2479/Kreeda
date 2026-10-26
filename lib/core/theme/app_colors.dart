@@ -14,24 +14,26 @@ class AppColors {
   static const Color passGold = Color(0xFFF59E0B); // Kreeda Pass Gold
   static const Color passGoldLight = Color(0xFFFBBF24);
 
-  // Light Mode Tokens (Sports Ice Canvas)
+  // Light Mode Tokens (Sports Ice Canvas - Soft Low-Opacity Aesthetic)
   static const Color backgroundLight = Color(0xFFF8F9FC);
   static const Color surfaceLight = Color(0xFFFFFFFF);
   static const Color surfaceElevatedLight = Color(0xFFF1F4F9);
   static const Color textPrimaryLight = Color(0xFF0F172A);
   static const Color textSecondaryLight = Color(0xFF475569);
   static const Color textMutedLight = Color(0xFF94A3B8);
-  static const Color borderLight = Color(0xFFCBD5E1);
+  static const Color borderLight = Color(0x2E0F172A); // Soft 18% low-opacity slate hairline
+  static const Color borderSubtleLight = Color(0x170F172A); // Feather 9% low-opacity divider
   static const Color activePillLight = Color(0xFFFFF2EC); // Warm peach tint
 
-  // Dark Mode Tokens (Deep Stadium Midnight)
+  // Dark Mode Tokens (Deep Stadium Midnight - Soft Low-Opacity Aesthetic)
   static const Color backgroundDark = Color(0xFF0A0F1D);
   static const Color surfaceDark = Color(0xFF131B2E);
   static const Color surfaceElevatedDark = Color(0xFF1A243D);
   static const Color textPrimaryDark = Color(0xFFFFFFFF);
   static const Color textSecondaryDark = Color(0xFFCBD5E1);
   static const Color textMutedDark = Color(0xFF64748B);
-  static const Color borderDark = Color(0xFF26334D);
+  static const Color borderDark = Color(0x29E2E8F0); // Soft 16% low-opacity silver hairline
+  static const Color borderSubtleDark = Color(0x17FFFFFF); // Feather 9% low-opacity divider
   static const Color activePillDark = Color(0xFF2E1911); // Warm dark ember tint
 
   // Dynamic Theme State Helpers
@@ -61,9 +63,12 @@ class AppColors {
   static Color textMuted(BuildContext context) =>
       isDark(context) ? textMutedDark : textMutedLight;
 
-  // Dynamic Outlines & Borders
+  // Dynamic Outlines & Borders (Soft Low-Opacity)
   static Color border(BuildContext context) =>
       isDark(context) ? borderDark : borderLight;
+
+  static Color borderSubtle(BuildContext context) =>
+      isDark(context) ? borderSubtleDark : borderSubtleLight;
 
   // Dynamic Brand Accents
   static Color primary(BuildContext context) =>

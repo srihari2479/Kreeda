@@ -67,7 +67,7 @@ class _UpcomingMatchCardState extends State<UpcomingMatchCard> {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: AppColors.border(context),
-              width: 1.0,
+              width: 0.8,
             ),
             boxShadow: AppShadows.neumorphic(context),
           ),

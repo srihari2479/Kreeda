@@ -583,7 +583,7 @@ class _ScoringConsoleScreenState extends State<ScoringConsoleScreen> {
             decoration: BoxDecoration(
               color: AppColors.surfaceElevated(context),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.border(context), width: 1.0),
+              border: Border.all(color: AppColors.border(context), width: 0.8),
             ),
             alignment: Alignment.center,
             child: Text(
