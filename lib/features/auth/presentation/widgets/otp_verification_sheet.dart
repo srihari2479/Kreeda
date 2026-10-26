@@ -136,7 +136,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
     setState(() => _isVerifying = true);
     KreedaLoading.show(context, message: 'VERIFYING CRICKETER OTP...');
 
-    Future.delayed(const Duration(milliseconds: 1600), () {
+    Future.delayed(const Duration(milliseconds: 3000), () {
       if (!mounted) return;
       KreedaLoading.hide();
       setState(() => _isVerifying = false);
