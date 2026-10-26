@@ -118,10 +118,10 @@ class ThemeTransitionWrapperState extends State<ThemeTransitionWrapper>
   void initState() {
     super.initState();
     ThemeTransition.ensureInitialized();
-    // 2000ms gentle duration with easeInOutCubic for a slow, cinematic, luxurious feel
+    // 550ms responsive, cinematic circular reveal with easeInOutCubic curve
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 550),
     );
     _animation = CurvedAnimation(
       parent: _controller,
@@ -136,88 +136,115 @@ class ThemeTransitionWrapperState extends State<ThemeTransitionWrapper>
     super.dispose();
   }
 
+  Future<void> _waitForFrame() async {
+    try {
+      await WidgetsBinding.instance.endOfFrame.timeout(
+        const Duration(milliseconds: 100),
+        onTimeout: () => Future.value(),
+      );
+    } catch (_) {
+      await Future.delayed(const Duration(milliseconds: 16));
+    }
+  }
+
   /// Performs the circular reveal:
-  /// 1. Takes screenshot of the current theme
-  /// 2. Displays snapshot statically on top
-  /// 3. Rebuilds underlying tree in new theme while snapshot is displayed
-  /// 4. Animates circular mask revealing the new theme
+  /// 1. Safely captures a pixel-perfect screenshot of the current theme
+  /// 2. Displays snapshot statically on top of the live tree
+  /// 3. Rebuilds underlying tree in new theme while snapshot covers the screen
+  /// 4. Animates high-performance vector circular clip revealing the new theme
   Future<void> animateThemeChange(ThemeMode targetMode, Offset origin) async {
     if (ThemeTransition.isAnimating) return;
     if (themeNotifier.value == targetMode) return;
 
     ThemeTransition.isAnimating = true;
-
-    final pixelRatio =
-        MediaQuery.maybeOf(context)?.devicePixelRatio ?? 2.0;
-
-    await Future.delayed(const Duration(milliseconds: 20));
-
-    final boundary = _repaintBoundaryKey.currentContext?.findRenderObject()
-        as RenderRepaintBoundary?;
-
-    ui.Image? capturedImage;
-
-    if (boundary != null && !boundary.debugNeedsPaint) {
-      try {
-        capturedImage =
-            await boundary.toImage(pixelRatio: math.min(pixelRatio, 1.5));
-      } catch (_) {
-        capturedImage = null;
-      }
-    }
-
-    if (!mounted) {
-      capturedImage?.dispose();
-      themeNotifier.setThemeMode(targetMode);
-      ThemeTransition.isNavDarkNotifier.value = targetMode == ThemeMode.dark;
-      ThemeTransition.isAnimating = false;
-      return;
-    }
-
-    if (capturedImage == null) {
-      themeNotifier.setThemeMode(targetMode);
-      ThemeTransition.isNavDarkNotifier.value = targetMode == ThemeMode.dark;
-      ThemeTransition.isAnimating = false;
-      return;
-    }
-
-    _isDarkTarget = (targetMode == ThemeMode.dark) ||
-        (targetMode == ThemeMode.system &&
-            WidgetsBinding.instance.platformDispatcher.platformBrightness ==
-                Brightness.dark);
-
-    setState(() {
-      _snapshot?.dispose();
-      _snapshot = capturedImage;
-      _origin = origin;
-    });
-
-    await Future.delayed(const Duration(milliseconds: 32));
-
-    themeNotifier.setThemeMode(targetMode);
-
-    await Future.delayed(const Duration(milliseconds: 32));
-
-    if (!mounted) {
-      _cleanup();
-      return;
-    }
-
-    // Synchronize bottom system bar transition with the wavefront
-    void progressListener() {
-      if (_controller.value >= 0.75 &&
-          ThemeTransition.isNavDarkNotifier.value != _isDarkTarget) {
-        ThemeTransition.isNavDarkNotifier.value = _isDarkTarget;
-      }
-    }
-
-    _controller.addListener(progressListener);
+    final pixelRatio = MediaQuery.maybeOf(context)?.devicePixelRatio ?? 2.0;
 
     try {
-      await _controller.forward(from: 0.0);
+      final boundary = _repaintBoundaryKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+
+      if (boundary == null) {
+        themeNotifier.setThemeMode(targetMode);
+        ThemeTransition.isNavDarkNotifier.value = targetMode == ThemeMode.dark;
+        return;
+      }
+
+      // If boundary is marked dirty for layout/paint, wait for the pending frame to paint
+      if (boundary.debugNeedsPaint) {
+        await _waitForFrame();
+      }
+
+      ui.Image? capturedImage;
+
+      try {
+        capturedImage =
+            await boundary.toImage(pixelRatio: math.min(pixelRatio, 2.0));
+      } catch (_) {
+        // Retry once after frame completes
+        try {
+          await _waitForFrame();
+          capturedImage =
+              await boundary.toImage(pixelRatio: math.min(pixelRatio, 2.0));
+        } catch (_) {
+          capturedImage = null;
+        }
+      }
+
+      if (!mounted) {
+        capturedImage?.dispose();
+        themeNotifier.setThemeMode(targetMode);
+        ThemeTransition.isNavDarkNotifier.value = targetMode == ThemeMode.dark;
+        return;
+      }
+
+      if (capturedImage == null) {
+        themeNotifier.setThemeMode(targetMode);
+        ThemeTransition.isNavDarkNotifier.value = targetMode == ThemeMode.dark;
+        return;
+      }
+
+      _isDarkTarget = (targetMode == ThemeMode.dark) ||
+          (targetMode == ThemeMode.system &&
+              WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+                  Brightness.dark);
+
+      setState(() {
+        _snapshot?.dispose();
+        _snapshot = capturedImage;
+        _origin = origin;
+      });
+
+      // Ensure snapshot is painted on screen before switching theme
+      await _waitForFrame();
+
+      // Switch theme mode: live widget tree re-renders in new theme underneath
+      themeNotifier.setThemeMode(targetMode);
+
+      // Ensure new theme finishes rendering underneath before starting reveal animation
+      await _waitForFrame();
+
+      if (!mounted) return;
+
+      // Synchronize bottom system bar transition with the wavefront
+      void progressListener() {
+        if (_controller.value >= 0.70 &&
+            ThemeTransition.isNavDarkNotifier.value != _isDarkTarget) {
+          ThemeTransition.isNavDarkNotifier.value = _isDarkTarget;
+        }
+      }
+
+      _controller.addListener(progressListener);
+
+      try {
+        await _controller.forward(from: 0.0);
+      } finally {
+        _controller.removeListener(progressListener);
+        ThemeTransition.isNavDarkNotifier.value = _isDarkTarget;
+      }
+    } catch (_) {
+      themeNotifier.setThemeMode(targetMode);
+      ThemeTransition.isNavDarkNotifier.value = targetMode == ThemeMode.dark;
     } finally {
-      _controller.removeListener(progressListener);
-      ThemeTransition.isNavDarkNotifier.value = _isDarkTarget;
       _cleanup();
     }
   }
@@ -294,31 +321,31 @@ class _CircularRevealPainter extends CustomPainter {
     final double maxRadius = _calculateMaxRadius(origin, size);
     final double currentRadius = maxRadius * progress;
 
-    // 1. Offscreen layer for hardware-accelerated blend masking
-    final layerPaint = Paint()..color = const Color(0xFFFFFFFF);
-    canvas.saveLayer(Rect.fromLTWH(0, 0, size.width, size.height), layerPaint);
+    // 1. High-Performance Hardware-Accelerated Vector Masking (Zero saveLayer)
+    // PathFillType.evenOdd clips out the circular hole without allocating offscreen GPU buffers.
+    canvas.save();
+    final clipPath = Path()
+      ..addRect(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..addOval(Rect.fromCircle(center: origin, radius: currentRadius))
+      ..fillType = PathFillType.evenOdd;
+    canvas.clipPath(clipPath);
 
-    // 2. Draw previous screenshot across the entire screen
+    // 2. Draw the previous theme screenshot across the unclipped region
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     paintImage(
       canvas: canvas,
       rect: rect,
       image: image,
       fit: BoxFit.cover,
-      filterQuality: FilterQuality.low,
+      filterQuality: FilterQuality.medium,
     );
+    canvas.restore();
 
-    // 3. Cut an expanding circular hole with BlendMode.dstOut
-    final clearPaint = Paint()
-      ..blendMode = BlendMode.dstOut
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(origin, currentRadius, clearPaint);
-
-    // 4. Kreeda Electric Energy Orange luminous rim at wavefront edge
+    // 3. Kreeda Electric Energy Orange luminous rim at wavefront edge
     // Strictly clipped above the bottom safe inset to prevent bleeding
     // into the Android gesture bar or navigation bar.
     if (progress > 0.0 && progress < 1.0) {
-      final ringAlpha = (math.sin(progress * math.pi) * 0.45).clamp(0.0, 1.0);
+      final ringAlpha = (math.sin(progress * math.pi) * 0.65).clamp(0.0, 1.0);
       final ringColor = isDarkTarget
           ? AppColors.primaryOrangeLight
           : AppColors.primaryOrange;
@@ -337,8 +364,6 @@ class _CircularRevealPainter extends CustomPainter {
       canvas.drawCircle(origin, currentRadius, ringPaint);
       canvas.restore();
     }
-
-    canvas.restore();
   }
 
   double _calculateMaxRadius(Offset center, Size size) {
