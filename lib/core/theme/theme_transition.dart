@@ -118,16 +118,16 @@ class ThemeTransitionWrapperState extends State<ThemeTransitionWrapper>
   void initState() {
     super.initState();
     ThemeTransition.ensureInitialized();
-    // 1050ms leisurely, butter-smooth cinematic circular reveal with fastOutSlowIn curve.
-    // Perfectly paced so the user vividly feels, savors, and tracks the wave
-    // gliding across the entire screen at solid 60-120 FPS.
+    // 1400ms majestic, butter-smooth cinematic circular reveal with easeInOutSine curve.
+    // Specially tuned so the user vividly feels, savors, and tracks the wave
+    // gliding calmly across the entire phone from top to bottom at solid 60-120 FPS.
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1050),
+      duration: const Duration(milliseconds: 1400),
     );
     _animation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.fastOutSlowIn,
+      curve: Curves.easeInOutSine,
     );
   }
 
@@ -233,7 +233,7 @@ class ThemeTransitionWrapperState extends State<ThemeTransitionWrapper>
 
       // Synchronize bottom system bar transition with the wavefront arriving at dock
       void progressListener() {
-        if (_controller.value >= 0.70 &&
+        if (_controller.value >= 0.75 &&
             ThemeTransition.isNavDarkNotifier.value != _isDarkTarget) {
           ThemeTransition.isNavDarkNotifier.value = _isDarkTarget;
         }
@@ -350,11 +350,11 @@ class _CircularRevealPainter extends CustomPainter {
     canvas.restore();
 
     // 3. Kreeda Electric Energy Orange luminous rim at wavefront edge
-    // Dual-layer vector bloom (soft ambient halo + sharp energetic edge)
+    // Triple-layer vector bloom (soft ambient halo + warm mid aura + crisp energetic edge)
     // Strictly clipped above the bottom safe inset to prevent bleeding
     // into the Android gesture bar or navigation bar.
     if (progress > 0.0 && progress < 1.0) {
-      final ringAlpha = (math.sin(progress * math.pi) * 0.75).clamp(0.0, 1.0);
+      final ringAlpha = (math.sin(progress * math.pi) * 0.85).clamp(0.0, 1.0);
       final ringColor = isDarkTarget
           ? AppColors.primaryOrangeLight
           : AppColors.primaryOrange;
@@ -365,21 +365,29 @@ class _CircularRevealPainter extends CustomPainter {
         Rect.fromLTWH(0, 0, size.width, size.height - clipBottomInset),
       );
 
-      // Layer A: Soft outer ambient bloom (5.0px width)
-      final bloomPaint = Paint()
+      // Layer A: Wide ambient halo (7.0px width)
+      final haloPaint = Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 5.0
-        ..color = ringColor.withValues(alpha: ringAlpha * 0.35)
+        ..strokeWidth = 7.0
+        ..color = ringColor.withValues(alpha: ringAlpha * 0.20)
         ..isAntiAlias = true;
-      canvas.drawCircle(origin, currentRadius, bloomPaint);
+      canvas.drawCircle(origin, currentRadius, haloPaint);
 
-      // Layer B: Core luminous wavefront rim (2.2px width)
-      final ringPaint = Paint()
+      // Layer B: Mid energetic aura (3.5px width)
+      final auraPaint = Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.2
-        ..color = ringColor.withValues(alpha: ringAlpha)
+        ..strokeWidth = 3.5
+        ..color = ringColor.withValues(alpha: ringAlpha * 0.45)
         ..isAntiAlias = true;
-      canvas.drawCircle(origin, currentRadius, ringPaint);
+      canvas.drawCircle(origin, currentRadius, auraPaint);
+
+      // Layer C: Core crisp luminous wavefront edge (1.8px width)
+      final edgePaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8
+        ..color = ringColor.withValues(alpha: ringAlpha * 0.95)
+        ..isAntiAlias = true;
+      canvas.drawCircle(origin, currentRadius, edgePaint);
 
       canvas.restore();
     }
