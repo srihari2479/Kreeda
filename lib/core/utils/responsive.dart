@@ -42,7 +42,7 @@ class Responsive {
   static double bottomSafeInset(BuildContext context) =>
       MediaQuery.paddingOf(context).bottom;
 
-  /// Bottom modal / sheet padding ensuring action buttons are never obscured by gesture nav bars
+  /// Bottom modal / sheet padding ensuring action buttons are never obscured by keyboard or gesture nav bars
   static EdgeInsets modalBottomPadding(BuildContext context, {double base = 16.0}) {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
     final gesturePadding = MediaQuery.paddingOf(context).bottom;
@@ -50,7 +50,7 @@ class Responsive {
       horizontalPadding(context),
       base,
       horizontalPadding(context),
-      bottomInset > 0 ? base : base + gesturePadding,
+      bottomInset > 0 ? base + bottomInset : base + gesturePadding,
     );
   }
 

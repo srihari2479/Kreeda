@@ -11,6 +11,7 @@ import 'package:kreeda/core/widgets/kreeda_toast.dart';
 import 'package:kreeda/core/widgets/section_divider_title.dart';
 import 'package:kreeda/features/auth/presentation/screens/login_screen.dart';
 import 'package:kreeda/features/auth/presentation/screens/signup_screen.dart';
+import 'package:kreeda/features/auth/presentation/widgets/otp_verification_sheet.dart';
 import 'package:kreeda/features/home/presentation/screens/home_screen.dart';
 import 'package:kreeda/features/matches/presentation/screens/match_details_screen.dart';
 import 'package:kreeda/features/navigation/presentation/main_navigation_screen.dart';
@@ -559,6 +560,48 @@ void main() {
     expect(find.text('ATBPL T10 • LEAGUE STAGE'), findsOneWidget);
     final darkScoreText = tester.widget<Text>(find.text('86/4'));
     expect(darkScoreText.style?.color, Colors.white);
+  });
+
+  testWidgets('OtpVerificationSheet elevates above keyboard without overflow on compact 360dp mobile', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(360 * 3, 780 * 3);
+    tester.view.devicePixelRatio = 3.0;
+    // Simulate keyboard open (300dp keyboard = 900 physical pixels)
+    tester.view.viewInsets = const FakeViewPadding(bottom: 300 * 3);
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetViewInsets();
+    });
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.darkTheme,
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => Center(
+              child: ElevatedButton(
+                onPressed: () => OtpVerificationSheet.show(
+                  context,
+                  phoneNumber: '+91 999799494499',
+                  onVerified: () {},
+                ),
+                child: const Text('OPEN OTP'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('OPEN OTP'));
+    await tester.pumpAndSettle();
+
+    // Verify all contents render and are visible above keyboard
+    expect(find.text('VERIFY PHONE NUMBER'), findsOneWidget);
+    expect(find.byType(OtpVerificationSheet), findsOneWidget);
+    expect(find.byType(TextField), findsNWidgets(6));
+    expect(find.text('VERIFY & CONTINUE'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }
 

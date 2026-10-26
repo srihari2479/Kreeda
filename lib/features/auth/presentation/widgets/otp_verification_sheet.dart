@@ -30,6 +30,7 @@ class OtpVerificationSheet extends StatefulWidget {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: AppColors.surface(context),
       barrierColor: Colors.black.withValues(alpha: 0.65),
       shape: const RoundedRectangleBorder(
@@ -149,145 +150,178 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = AppColors.isDark(context);
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final gesturePadding = MediaQuery.paddingOf(context).bottom;
+    final hPadding = Responsive.horizontalPadding(context);
+    final screenWidth = MediaQuery.sizeOf(context).width;
 
-    return Padding(
-      padding: Responsive.modalBottomPadding(context, base: 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Top Drag Pill Handle
-          Center(
-            child: Container(
-              width: 44,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.border(context),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
+    // Dynamically calculate cell width so all 6 cells fit comfortably on any screen width
+    final cellWidth =
+        ((screenWidth - (hPadding * 2) - 48) / _otpLength).clamp(38.0, 48.0);
 
-          // Title & Subtitle
-          Text(
-            'VERIFY PHONE NUMBER',
-            style: AppTypography.headlineMedium(AppColors.textPrimary(context)),
-            textAlign: TextAlign.center,
+    return AnimatedPadding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+      child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            hPadding,
+            16,
+            hPadding,
+            bottomInset > 0 ? 16 : 16 + gesturePadding,
           ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                style: AppTypography.bodyMedium(AppColors.textSecondary(context)),
-                children: [
-                  const TextSpan(text: 'We sent a 6-digit verification code to\n'),
-                  TextSpan(
-                    text: widget.phoneNumber,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primary(context),
-                    ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Top Drag Pill Handle
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.border(context),
+                    borderRadius: BorderRadius.circular(2),
                   ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Title & Subtitle
+              Text(
+                'VERIFY PHONE NUMBER',
+                style:
+                    AppTypography.headlineMedium(AppColors.textPrimary(context)),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 6),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style:
+                        AppTypography.bodyMedium(AppColors.textSecondary(context)),
+                    children: [
+                      const TextSpan(
+                          text: 'We sent a 6-digit verification code to\n'),
+                      TextSpan(
+                        text: widget.phoneNumber,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // 6 Tactile Neumorphic OTP Input Cells (FittedBox guaranteed zero overflow)
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(_otpLength, (index) {
+                    final isCellFocused = _focusNodes[index].hasFocus;
+                    final hasValue = _controllers[index].text.isNotEmpty;
+
+                    return Container(
+                      width: cellWidth,
+                      height: 52,
+                      margin: const EdgeInsets.symmetric(horizontal: 3.5),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF131A2E)
+                            : const Color(0xFFF1F3F9),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isCellFocused
+                              ? AppColors.primaryOrange
+                              : (hasValue
+                                  ? AppColors.primaryOrange
+                                      .withValues(alpha: 0.5)
+                                  : AppColors.border(context)),
+                          width: isCellFocused ? 1.5 : 0.8,
+                        ),
+                        boxShadow: isCellFocused ? AppShadows.orangeGlow : [],
+                      ),
+                      alignment: Alignment.center,
+                      child: KeyboardListener(
+                        focusNode: FocusNode(),
+                        onKeyEvent: (event) => _onKeyEvent(index, event),
+                        child: TextField(
+                          controller: _controllers[index],
+                          focusNode: _focusNodes[index],
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          maxLength: 1,
+                          style: AppTypography.headlineMedium(
+                            AppColors.textPrimary(context),
+                          ).copyWith(fontSize: 20),
+                          cursorColor: AppColors.primaryOrange,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          decoration: const InputDecoration(
+                            counterText: '',
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          onChanged: (val) => _onDigitChanged(index, val),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              // Resend Timer Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _secondsRemaining > 0
+                        ? 'Resend OTP in 0:${_secondsRemaining.toString().padLeft(2, '0')}s'
+                        : "Didn't receive the OTP?",
+                    style: AppTypography.bodySmall(
+                        AppColors.textSecondary(context)),
+                  ),
+                  if (_secondsRemaining == 0) ...[
+                    const SizedBox(width: 6),
+                    GestureDetector(
+                      onTap: _resendCode,
+                      child: Text(
+                        'RESEND NOW',
+                        style:
+                            AppTypography.bodySmall(AppColors.primary(context))
+                                .copyWith(
+                          fontWeight: FontWeight.w800,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
-            ),
-          ),
-          const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-          // 6 Tactile Neumorphic OTP Input Cells
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(_otpLength, (index) {
-              final isCellFocused = _focusNodes[index].hasFocus;
-              final hasValue = _controllers[index].text.isNotEmpty;
-
-              return Container(
-                width: 46,
-                height: 54,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF131A2E)
-                      : const Color(0xFFF1F3F9),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isCellFocused
-                        ? AppColors.primaryOrange
-                        : (hasValue
-                            ? AppColors.primaryOrange.withValues(alpha: 0.5)
-                            : AppColors.border(context)),
-                    width: isCellFocused ? 1.5 : 0.8,
-                  ),
-                  boxShadow: isCellFocused ? AppShadows.orangeGlow : [],
-                ),
-                alignment: Alignment.center,
-                child: KeyboardListener(
-                  focusNode: FocusNode(),
-                  onKeyEvent: (event) => _onKeyEvent(index, event),
-                  child: TextField(
-                    controller: _controllers[index],
-                    focusNode: _focusNodes[index],
-                    keyboardType: TextInputType.number,
-                    textAlign: TextAlign.center,
-                    maxLength: 1,
-                    style: AppTypography.headlineMedium(
-                      AppColors.textPrimary(context),
-                    ).copyWith(fontSize: 22),
-                    cursorColor: AppColors.primaryOrange,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(
-                      counterText: '',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    onChanged: (val) => _onDigitChanged(index, val),
-                  ),
-                ),
-              );
-            }),
-          ),
-          const SizedBox(height: 20),
-
-          // Resend Timer Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                _secondsRemaining > 0
-                    ? 'Resend OTP in 0:${_secondsRemaining.toString().padLeft(2, '0')}s'
-                    : "Didn't receive the OTP?",
-                style: AppTypography.bodySmall(AppColors.textSecondary(context)),
+              // Primary Verification Button
+              KreedaButton(
+                text: 'VERIFY & CONTINUE',
+                isLoading: _isVerifying,
+                onPressed: _verifyOtp,
+                height: 50,
+                icon: Icons.verified_user_rounded,
               ),
-              if (_secondsRemaining == 0) ...[
-                const SizedBox(width: 6),
-                GestureDetector(
-                  onTap: _resendCode,
-                  child: Text(
-                    'RESEND NOW',
-                    style: AppTypography.bodySmall(AppColors.primary(context))
-                        .copyWith(
-                      fontWeight: FontWeight.w800,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
-              ],
             ],
           ),
-          const SizedBox(height: 24),
-
-          // Primary Verification Button
-          KreedaButton(
-            text: 'VERIFY & CONTINUE',
-            isLoading: _isVerifying,
-            onPressed: _verifyOtp,
-            height: 52,
-            icon: Icons.verified_user_rounded,
-          ),
-        ],
+        ),
       ),
     );
   }
