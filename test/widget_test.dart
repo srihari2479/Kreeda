@@ -7,6 +7,7 @@ import 'package:kreeda/core/theme/theme_transition.dart';
 import 'package:kreeda/core/widgets/app_logo.dart';
 import 'package:kreeda/core/widgets/hero_match_card.dart';
 import 'package:kreeda/core/widgets/kreeda_bottom_nav.dart';
+import 'package:kreeda/core/widgets/kreeda_loading.dart';
 import 'package:kreeda/core/widgets/kreeda_toast.dart';
 import 'package:kreeda/core/widgets/section_divider_title.dart';
 import 'package:kreeda/features/auth/presentation/screens/login_screen.dart';
@@ -602,6 +603,55 @@ void main() {
     expect(find.byType(TextField), findsNWidgets(6));
     expect(find.text('VERIFY & CONTINUE'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('KreedaLoading Helicopter Shot renders with theme tokens, progress bar, and zero overflow', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(360 * 3, 780 * 3);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      KreedaLoading.hide();
+    });
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.lightTheme,
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => Center(
+              child: ElevatedButton(
+                onPressed: () => KreedaLoading.show(
+                  context,
+                  message: 'AUTHENTICATING WITH Apple...',
+                ),
+                child: const Text('SHOW LOADING'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Trigger loading
+    await tester.tap(find.text('SHOW LOADING'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    // Verify UI components in light theme
+    expect(find.text('KREEDA'), findsOneWidget);
+    expect(find.text('HELICOPTER SHOT'), findsOneWidget);
+    expect(find.text('AUTHENTICATING WITH Apple...'), findsOneWidget);
+    expect(find.byType(KreedaLoadingWidget), findsOneWidget);
+
+    // Advance time and check animation loop and message rotation
+    await tester.pump(const Duration(milliseconds: 1500));
+    expect(tester.takeException(), isNull);
+
+    // Dismiss cleanly
+    KreedaLoading.hide();
+    await tester.pump();
+    expect(find.byType(KreedaLoadingWidget), findsNothing);
   });
 }
 

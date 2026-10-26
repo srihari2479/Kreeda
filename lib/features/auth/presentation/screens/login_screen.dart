@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
     KreedaLoading.show(context, message: 'LOGGING IN TO KREEDA...');
 
-    Future.delayed(const Duration(milliseconds: 3000), () {
+    Future.delayed(const Duration(milliseconds: 5000), () {
       if (!mounted) return;
       KreedaLoading.hide();
       setState(() => _isLoading = false);
@@ -119,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _handleSocialLogin(String provider) {
     HapticFeedback.lightImpact();
     KreedaLoading.show(context, message: 'AUTHENTICATING WITH $provider...');
-    Future.delayed(const Duration(milliseconds: 3000), () {
+    Future.delayed(const Duration(milliseconds: 5000), () {
       if (!mounted) return;
       KreedaLoading.hide();
       KreedaToast.showSuccess(context, 'Connected with $provider');

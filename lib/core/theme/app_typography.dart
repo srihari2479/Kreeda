@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 /// Uses [Bebas Neue] globally for athletic display headlines, match scores,
 /// badges, and banners, paired with [Inter] for crisp legible body text.
 class AppTypography {
-  // Bebas Neue base builder
+  // Bebas Neue base builder with offline/low-network fallback
   static TextStyle bebas({
     double fontSize = 20,
     FontWeight fontWeight = FontWeight.w600,
@@ -19,10 +19,12 @@ class AppTypography {
       color: color,
       letterSpacing: letterSpacing,
       height: height,
+    ).copyWith(
+      fontFamilyFallback: const ['Impact', 'Arial Black', 'sans-serif'],
     );
   }
 
-  // Inter body builder
+  // Inter body builder with offline/low-network fallback
   static TextStyle bodyText({
     double fontSize = 14,
     FontWeight fontWeight = FontWeight.normal,
@@ -36,6 +38,8 @@ class AppTypography {
       color: color,
       letterSpacing: letterSpacing,
       height: height,
+    ).copyWith(
+      fontFamilyFallback: const ['Roboto', 'Segoe UI', 'Arial', 'sans-serif'],
     );
   }
 
