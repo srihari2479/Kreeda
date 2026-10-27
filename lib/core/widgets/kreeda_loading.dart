@@ -411,12 +411,9 @@ class _HelicopterShotPainter extends CustomPainter {
     final thighTop = Offset(hip.dx - s * 0.025, hip.dy + s * 0.005);
     final hamstring = Offset(stX - s * 0.070, hip.dy + s * 0.060);
     final kneeFold = Offset(stX - s * 0.095, groundY - s * 0.095 + crouch * 0.4);
-    final calfCurve = Offset(stX - s * 0.145, groundY - s * 0.055);
-    final ankleBack = Offset(stX - s * 0.170, groundY - s * 0.035);
     final heelLifted = Offset(stX - s * 0.188, groundY - s * 0.028);
     final toeBall = Offset(stX - s * 0.160, groundY);
     final toeTip = Offset(stX - s * 0.138, groundY);
-    final shinMid = Offset(stX - s * 0.105, groundY - s * 0.055);
     final kneeFront = Offset(stX - s * 0.055, groundY - s * 0.090 + crouch * 0.4);
     final quadFront = Offset(stX - s * 0.020, hip.dy + s * 0.070);
     final thighFront = Offset(hip.dx + s * 0.015, hip.dy + s * 0.025);
@@ -432,31 +429,28 @@ class _HelicopterShotPainter extends CustomPainter {
       ..close();
     canvas.drawPath(backThighPath, pantPaint);
 
-    // Rear Cricket Batting Pad (Full authentic cricket kit)
+    // Rear Cricket Batting Pad (Contoured with arched instep notch above shoe)
     final rearPadPath = Path()
-      ..moveTo(kneeFold.dx - s * 0.015, kneeFold.dy - s * 0.025)
-      ..lineTo(kneeFront.dx + s * 0.018, kneeFront.dy - s * 0.020)
-      ..lineTo(kneeFront.dx + s * 0.022, kneeFront.dy + s * 0.010)
-      ..lineTo(shinMid.dx + s * 0.008, groundY - s * 0.025)
-      ..lineTo(toeTip.dx, toeTip.dy)
-      ..lineTo(toeBall.dx, toeBall.dy)
-      ..lineTo(heelLifted.dx, heelLifted.dy)
-      ..lineTo(ankleBack.dx - s * 0.012, groundY - s * 0.025)
-      ..lineTo(calfCurve.dx - s * 0.015, groundY - s * 0.055)
-      ..lineTo(kneeFold.dx - s * 0.018, kneeFold.dy + s * 0.010)
+      ..moveTo(kneeFold.dx - s * 0.010, kneeFold.dy - s * 0.025)
+      ..lineTo(kneeFront.dx + s * 0.012, kneeFront.dy - s * 0.020)
+      ..lineTo(kneeFront.dx + s * 0.015, kneeFront.dy + s * 0.008)
+      ..lineTo(toeTip.dx + s * 0.005, groundY - s * 0.022)
+      ..lineTo(toeBall.dx + s * 0.005, groundY - s * 0.026)
+      ..lineTo(heelLifted.dx - s * 0.005, groundY - s * 0.022)
+      ..lineTo(kneeFold.dx - s * 0.015, kneeFold.dy + s * 0.008)
       ..close();
     canvas.drawPath(rearPadPath, padPaint);
     canvas.drawPath(rearPadPath, padBorderPaint);
 
     // Rear Pad Straps
     canvas.drawLine(
-      Offset(kneeFold.dx - s * 0.010, kneeFold.dy),
-      Offset(kneeFront.dx + s * 0.012, kneeFront.dy),
+      Offset(kneeFold.dx - s * 0.008, kneeFold.dy),
+      Offset(kneeFront.dx + s * 0.010, kneeFront.dy),
       padStrapPaint,
     );
     canvas.drawLine(
-      Offset(calfCurve.dx - s * 0.010, groundY - s * 0.055),
-      Offset(shinMid.dx + s * 0.005, groundY - s * 0.055),
+      Offset(stX - s * 0.138, groundY - s * 0.055),
+      Offset(stX - s * 0.092, groundY - s * 0.055),
       padStrapPaint,
     );
 
@@ -472,38 +466,36 @@ class _HelicopterShotPainter extends CustomPainter {
       ..close();
     canvas.drawPath(frontThighPath, pantPaint);
 
-    // C. Contoured Professional Cricket Batting Pad
-    final fAnkle = Offset(stX + s * 0.206, groundY - s * 0.030);
+    // C. Contoured Professional Cricket Batting Pad (Arched instep sits cleanly above shoe)
     final fToe = Offset(stX + s * 0.290, groundY);
     final fHeel = Offset(stX + s * 0.176, groundY);
 
     final padPath = Path()
-      ..moveTo(fKnee.dx - s * 0.030, fKnee.dy - s * 0.054)
-      ..lineTo(fKnee.dx + s * 0.046, fKnee.dy - s * 0.038)
-      ..lineTo(fKnee.dx + s * 0.060, fKnee.dy + s * 0.015)
-      ..lineTo(fAnkle.dx + s * 0.054, groundY - s * 0.015)
-      ..lineTo(fToe.dx, fToe.dy)
-      ..lineTo(fHeel.dx, fHeel.dy)
-      ..lineTo(fAnkle.dx - s * 0.030, groundY - s * 0.046)
-      ..lineTo(fKnee.dx - s * 0.038, fKnee.dy + s * 0.030)
+      ..moveTo(fKnee.dx - s * 0.022, fKnee.dy - s * 0.050)
+      ..lineTo(fKnee.dx + s * 0.036, fKnee.dy - s * 0.040)
+      ..lineTo(fKnee.dx + s * 0.042, fKnee.dy + s * 0.010)
+      ..lineTo(fToe.dx - s * 0.010, groundY - s * 0.025)
+      ..lineTo(fHeel.dx + s * 0.015, groundY - s * 0.028)
+      ..lineTo(fHeel.dx - s * 0.005, groundY - s * 0.022)
+      ..lineTo(fKnee.dx - s * 0.028, fKnee.dy + s * 0.010)
       ..close();
     canvas.drawPath(padPath, padPaint);
     canvas.drawPath(padPath, padBorderPaint);
 
     // Front Batting Pad Knee Roll & Straps
     canvas.drawLine(
-      Offset(fKnee.dx - s * 0.024, fKnee.dy),
-      Offset(fKnee.dx + s * 0.054, fKnee.dy + s * 0.008),
+      Offset(fKnee.dx - s * 0.020, fKnee.dy - s * 0.005),
+      Offset(fKnee.dx + s * 0.036, fKnee.dy + s * 0.005),
       padStrapPaint,
     );
     canvas.drawLine(
-      Offset(fKnee.dx - s * 0.024, fKnee.dy + s * 0.024),
-      Offset(fKnee.dx + s * 0.054, fKnee.dy + s * 0.030),
+      Offset(fKnee.dx - s * 0.018, fKnee.dy + s * 0.020),
+      Offset(fKnee.dx + s * 0.038, fKnee.dy + s * 0.028),
       padStrapPaint,
     );
     canvas.drawLine(
-      Offset(fAnkle.dx - s * 0.015, groundY - s * 0.060),
-      Offset(fAnkle.dx + s * 0.038, groundY - s * 0.054),
+      Offset(fHeel.dx + s * 0.005, groundY - s * 0.060),
+      Offset(fToe.dx - s * 0.020, groundY - s * 0.055),
       padStrapPaint,
     );
 
@@ -771,11 +763,33 @@ class _HelicopterShotPainter extends CustomPainter {
       // Fast dipping yorker into the blockhole
       final p = progress / 0.25;
       final curved = p * p;
-      final startPos = Offset(w * 0.98, h * 0.16);
+      final startPos = Offset(w * 1.05, groundY - s * 0.18);
       ballPos = Offset(
         ui.lerpDouble(startPos.dx, impactPoint.dx, p)!,
         ui.lerpDouble(startPos.dy, impactPoint.dy, curved)!,
       );
+
+      // Yorker Inswing Speed Streak
+      final streakLength = math.min(s * 0.25, p * (s * 0.40));
+      final streakStart = Offset(
+        ballPos.dx + streakLength,
+        ballPos.dy - streakLength * 0.15,
+      );
+      final streakPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = math.max(1.8, s * 0.020)
+        ..strokeCap = StrokeCap.round
+        ..shader = ui.Gradient.linear(
+          streakStart,
+          ballPos,
+          [
+            Colors.transparent,
+            primaryColor.withValues(alpha: 0.70),
+            Colors.white.withValues(alpha: 0.90),
+          ],
+          const [0.0, 0.5, 1.0],
+        );
+      canvas.drawLine(streakStart, ballPos, streakPaint);
     } else if (progress <= 0.27) {
       // Direct impact!
       ballPos = impactPoint;
