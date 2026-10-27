@@ -1,23 +1,22 @@
-import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_typography.dart';
 
 /// Global Creative Cricket Loading System for Kreeda ("Cricket Lives Here").
 /// Features an athletic cricketer executing MS Dhoni's legendary Helicopter Shot:
-/// 1. Fast dipping yorker delivery into the blockhole
+/// 1. Fast dipping inswinging yorker into the blockhole
 /// 2. Explosive sweet-spot contact with expanding dual-ring shockwave & sparks
 /// 3. Trademark 360° overhead helicopter rotor bat whirl with luminous neon trails
-/// 4. Rocketing sixer soaring into the stadium sky with a radiant comet tail.
+/// 4. Rocketing sixer soaring into the stadium sky with a radiant comet tail
+/// 5. Clean, distraction-free dimmed background overlay without any container boxes or text.
 class KreedaLoading {
   static OverlayEntry? _overlayEntry;
 
-  /// Shows a modal full-screen frosted glass loading overlay.
+  /// Shows a modal full-screen frosted glass loading overlay with the Helicopter Shot animation.
   static void show(
     BuildContext context, {
-    String message = 'FETCHING LIVE CRICKET FEEDS...',
+    String? message,
   }) {
     if (_overlayEntry != null) return;
 
@@ -30,7 +29,7 @@ class KreedaLoading {
     _overlayEntry = OverlayEntry(
       builder: (ctx) => Theme(
         data: theme,
-        child: _KreedaLoadingOverlay(initialMessage: message),
+        child: const _KreedaLoadingOverlay(),
       ),
     );
 
@@ -44,70 +43,38 @@ class KreedaLoading {
   }
 }
 
-/// Full-screen frosted overlay with centered Neumorphic cricket loading card.
+/// Full-screen frosted overlay with cleanly centered Helicopter Shot animation.
+/// Completely free of container cards, borders, or text — pure, cinematic sports action.
 class _KreedaLoadingOverlay extends StatefulWidget {
-  final String initialMessage;
-
-  const _KreedaLoadingOverlay({required this.initialMessage});
+  const _KreedaLoadingOverlay();
 
   @override
   State<_KreedaLoadingOverlay> createState() => _KreedaLoadingOverlayState();
 }
 
 class _KreedaLoadingOverlayState extends State<_KreedaLoadingOverlay>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   late final AnimationController _entranceCtrl;
-  late final AnimationController _progressCtrl;
-  late final Timer _messageTimer;
-
-  int _messageIndex = 0;
-  final List<String> _dynamicMessages = [
-    'CONNECTING TO LIVE PITCH...',
-    'DIGGING OUT THE CRACKING YORKER...',
-    'UNLEASHING THE HELICOPTER SHOT! 🚁',
-    'ROCKETING INTO THE STADIUM SKY! 💥',
-    'SYNCHRONIZING MATCH CENTER...',
-  ];
 
   @override
   void initState() {
     super.initState();
-
-    // Smooth card entrance (fade + scale)
+    // Smooth, cinematic entrance animation (fade + scale)
     _entranceCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 320),
+      duration: const Duration(milliseconds: 300),
     )..forward();
-
-    // Simulated progress bar over 5000ms duration
-    _progressCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 5000),
-    )..forward();
-
-    // Dynamic cricket commentary rotation every 1400ms
-    _messageTimer = Timer.periodic(const Duration(milliseconds: 1400), (timer) {
-      if (!mounted) return;
-      setState(() {
-        _messageIndex = (_messageIndex + 1) % _dynamicMessages.length;
-      });
-    });
   }
 
   @override
   void dispose() {
-    _messageTimer.cancel();
     _entranceCtrl.dispose();
-    _progressCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = AppColors.isDark(context);
-    final currentMsg = _messageIndex == 0
-        ? widget.initialMessage
-        : _dynamicMessages[_messageIndex];
 
     return Material(
       color: Colors.transparent,
@@ -119,175 +86,23 @@ class _KreedaLoadingOverlayState extends State<_KreedaLoadingOverlay>
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Frosted glass dimmed backdrop with 10px Gaussian blur
+            // Frosted glass dimmed backdrop with 12px Gaussian blur
             BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
               child: Container(
-                color: Colors.black.withValues(alpha: isDark ? 0.65 : 0.42),
+                color: Colors.black.withValues(alpha: isDark ? 0.72 : 0.54),
               ),
             ),
-            // Centered Neumorphic loading card
+            // Centered Helicopter Shot Animation (Floating freely on dimmed backdrop)
             Center(
               child: ScaleTransition(
-                scale: Tween<double>(begin: 0.92, end: 1.0).animate(
+                scale: Tween<double>(begin: 0.90, end: 1.0).animate(
                   CurvedAnimation(
                     parent: _entranceCtrl,
-                    curve: Curves.easeOutBack,
+                    curve: Curves.easeOutCubic,
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Container(
-                    constraints: const BoxConstraints(maxWidth: 320),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface(context),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: AppColors.border(context),
-                        width: 0.8,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(
-                            alpha: isDark ? 0.40 : 0.08,
-                          ),
-                          blurRadius: 28,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.fromLTRB(22, 24, 22, 20),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // The Helicopter Shot Animation Canvas
-                        const KreedaLoadingWidget(size: 110),
-                        const SizedBox(height: 14),
-
-                        // Header Brand Row (Fitted to eliminate 100% overflow across viewports)
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'KREEDA',
-                                style: AppTypography.headlineMedium(
-                                  AppColors.primary(context),
-                                ).copyWith(
-                                  letterSpacing: 2.2,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 7,
-                                  vertical: 2.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryOrange.withValues(
-                                    alpha: 0.14,
-                                  ),
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(
-                                    color: AppColors.primaryOrange.withValues(
-                                      alpha: 0.35,
-                                    ),
-                                    width: 0.8,
-                                  ),
-                                ),
-                                child: Text(
-                                  'HELICOPTER SHOT',
-                                  style: TextStyle(
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppColors.primaryOrange,
-                                    letterSpacing: 0.8,
-                                    fontFamilyFallback: const [
-                                      'Impact',
-                                      'Arial Black',
-                                      'sans-serif',
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-
-                        // Rotating Cricket Commentary (Guaranteed width clearance)
-                        SizedBox(
-                          width: double.infinity,
-                          height: 22,
-                          child: Center(
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 260),
-                              child: Text(
-                                currentMsg,
-                                key: ValueKey<String>(currentMsg),
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTypography.caption(
-                                  AppColors.textSecondary(context),
-                                ).copyWith(
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 11.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Animated Sports Progress Bar
-                        AnimatedBuilder(
-                          animation: _progressCtrl,
-                          builder: (context, _) {
-                            final progress = _progressCtrl.value;
-                            return Container(
-                              height: 3.5,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: AppColors.border(context).withValues(
-                                  alpha: 0.15,
-                                ),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                              alignment: Alignment.centerLeft,
-                              child: FractionallySizedBox(
-                                widthFactor: progress.clamp(0.05, 1.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppColors.passGold,
-                                        AppColors.primaryOrange,
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(2),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColors.primaryOrange
-                                            .withValues(alpha: 0.45),
-                                        blurRadius: 4,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                child: const KreedaLoadingWidget(size: 165),
               ),
             ),
           ],
@@ -298,14 +113,14 @@ class _KreedaLoadingOverlayState extends State<_KreedaLoadingOverlay>
 }
 
 /// Reusable inline animated Helicopter Shot loader widget.
-/// Adapts seamlessly from compact 48dp sizes to full 140dp showcases.
+/// Adapts seamlessly from compact 64dp sizes to full 180dp showcase showcases.
 class KreedaLoadingWidget extends StatefulWidget {
   final double size;
   final String? message;
 
   const KreedaLoadingWidget({
     super.key,
-    this.size = 80.0,
+    this.size = 100.0,
     this.message,
   });
 
@@ -320,10 +135,10 @@ class _KreedaLoadingWidgetState extends State<KreedaLoadingWidget>
   @override
   void initState() {
     super.initState();
-    // 2000ms rhythmic, cinematic loop of the complete helicopter shot sequence
+    // 2200ms rhythmic, cinematic loop of the complete helicopter shot sequence
     _animCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2200),
     )..repeat();
   }
 
@@ -341,41 +156,28 @@ class _KreedaLoadingWidgetState extends State<KreedaLoadingWidget>
     final silhouetteColor = isDark ? Colors.white : AppColors.primaryNavy;
     final borderColor = AppColors.border(context);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AnimatedBuilder(
-          animation: _animCtrl,
-          builder: (context, _) {
-            final canvasWidth = widget.size * 1.35;
-            final canvasHeight = widget.size;
+    final canvasWidth = widget.size * 1.55;
+    final canvasHeight = widget.size;
 
-            return SizedBox(
-              width: canvasWidth,
-              height: canvasHeight,
-              child: CustomPaint(
-                size: Size(canvasWidth, canvasHeight),
-                painter: _HelicopterShotPainter(
-                  progress: _animCtrl.value,
-                  isDark: isDark,
-                  primaryColor: primaryColor,
-                  accentGold: accentGold,
-                  silhouetteColor: silhouetteColor,
-                  borderColor: borderColor,
-                ),
-              ),
-            );
-          },
-        ),
-        if (widget.message != null) ...[
-          const SizedBox(height: 10),
-          Text(
-            widget.message!,
-            style: AppTypography.caption(AppColors.textSecondary(context)),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ],
+    return SizedBox(
+      width: canvasWidth,
+      height: canvasHeight,
+      child: AnimatedBuilder(
+        animation: _animCtrl,
+        builder: (context, _) {
+          return CustomPaint(
+            size: Size(canvasWidth, canvasHeight),
+            painter: _HelicopterShotPainter(
+              progress: _animCtrl.value,
+              isDark: isDark,
+              primaryColor: primaryColor,
+              accentGold: accentGold,
+              silhouetteColor: silhouetteColor,
+              borderColor: borderColor,
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -383,7 +185,7 @@ class _KreedaLoadingWidgetState extends State<KreedaLoadingWidget>
 /// High-Performance Vector CustomPainter visualizing MS Dhoni's iconic Helicopter Shot.
 /// 100% Vector Math & GPU-accelerated Canvas operations (60-120 FPS guaranteed).
 class _HelicopterShotPainter extends CustomPainter {
-  final double progress; // 0.0 to 1.0 (2000ms loop)
+  final double progress; // 0.0 to 1.0 (2200ms loop)
   final bool isDark;
   final Color primaryColor;
   final Color accentGold;
@@ -406,65 +208,69 @@ class _HelicopterShotPainter extends CustomPainter {
     final double s = math.min(w, h);
 
     // Dynamic ground & stance layout
-    final double groundY = h * 0.83;
-    final double stanceX = w * 0.38;
-    final Offset impactPoint = Offset(w * 0.53, groundY - s * 0.05);
+    final double groundY = h * 0.82;
+    final double stanceX = w * 0.36;
+    final Offset impactPoint = Offset(w * 0.52, groundY - s * 0.05);
 
     // ----------------------------------------------------
     // 1. Stadium Ambient Floodlight Glow
     // ----------------------------------------------------
-    final floodlightCenter = Offset(w * 0.48, h * 0.48);
+    final floodlightCenter = Offset(w * 0.46, h * 0.50);
     final floodlightPaint = Paint()
       ..shader = RadialGradient(
         colors: [
-          primaryColor.withValues(alpha: isDark ? 0.15 : 0.07),
+          primaryColor.withValues(alpha: isDark ? 0.22 : 0.12),
+          accentGold.withValues(alpha: isDark ? 0.08 : 0.04),
           Colors.transparent,
         ],
-      ).createShader(Rect.fromCircle(center: floodlightCenter, radius: s * 0.68));
-    canvas.drawCircle(floodlightCenter, s * 0.68, floodlightPaint);
+        stops: const [0.0, 0.50, 1.0],
+      ).createShader(
+        Rect.fromCircle(center: floodlightCenter, radius: s * 0.72),
+      );
+    canvas.drawCircle(floodlightCenter, s * 0.72, floodlightPaint);
 
     // ----------------------------------------------------
     // 2. Pitch Crease & Stumps
     // ----------------------------------------------------
     final groundPaint = Paint()
-      ..color = borderColor.withValues(alpha: 0.35)
-      ..strokeWidth = math.max(0.8, s * 0.012)
+      ..color = borderColor.withValues(alpha: 0.40)
+      ..strokeWidth = math.max(1.0, s * 0.012)
       ..strokeCap = StrokeCap.round;
 
     // Pitch turf crease line
     canvas.drawLine(
-      Offset(w * 0.08, groundY),
-      Offset(w * 0.92, groundY),
+      Offset(w * 0.06, groundY),
+      Offset(w * 0.94, groundY),
       groundPaint,
     );
 
     // Popping crease mark
     canvas.drawLine(
-      Offset(w * 0.35, groundY - s * 0.06),
-      Offset(w * 0.35, groundY + s * 0.03),
+      Offset(w * 0.33, groundY - s * 0.06),
+      Offset(w * 0.33, groundY + s * 0.03),
       groundPaint,
     );
 
     // Timber Stumps & Bails behind batsman
-    final stumpX = w * 0.20;
-    final stumpHeight = s * 0.24;
+    final stumpX = w * 0.18;
+    final stumpHeight = s * 0.25;
     final stumpPaint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          const Color(0xFFD97706).withValues(alpha: isDark ? 0.85 : 0.70),
-          const Color(0xFF78350F).withValues(alpha: isDark ? 0.90 : 0.80),
+          const Color(0xFFD97706).withValues(alpha: isDark ? 0.90 : 0.75),
+          const Color(0xFF78350F).withValues(alpha: isDark ? 0.95 : 0.85),
         ],
       ).createShader(
         Rect.fromLTWH(stumpX - 5, groundY - stumpHeight, 10, stumpHeight),
       )
-      ..strokeWidth = math.max(1.2, s * 0.016)
+      ..strokeWidth = math.max(1.4, s * 0.016)
       ..strokeCap = StrokeCap.round;
 
     canvas.drawLine(
-      Offset(stumpX - 4, groundY),
-      Offset(stumpX - 4, groundY - stumpHeight),
+      Offset(stumpX - 4.5, groundY),
+      Offset(stumpX - 4.5, groundY - stumpHeight),
       stumpPaint,
     );
     canvas.drawLine(
@@ -473,15 +279,15 @@ class _HelicopterShotPainter extends CustomPainter {
       stumpPaint,
     );
     canvas.drawLine(
-      Offset(stumpX + 4, groundY),
-      Offset(stumpX + 4, groundY - stumpHeight),
+      Offset(stumpX + 4.5, groundY),
+      Offset(stumpX + 4.5, groundY - stumpHeight),
       stumpPaint,
     );
     // Bails on top
     canvas.drawLine(
-      Offset(stumpX - 5.5, groundY - stumpHeight - 1),
-      Offset(stumpX + 5.5, groundY - stumpHeight - 1),
-      stumpPaint..strokeWidth = math.max(1.2, s * 0.020),
+      Offset(stumpX - 6.0, groundY - stumpHeight - 1.5),
+      Offset(stumpX + 6.0, groundY - stumpHeight - 1.5),
+      stumpPaint..strokeWidth = math.max(1.4, s * 0.020),
     );
 
     // ----------------------------------------------------
@@ -489,33 +295,130 @@ class _HelicopterShotPainter extends CustomPainter {
     // ----------------------------------------------------
     // Phase 1: Yorker Delivery & Coil (0.00 -> 0.22)
     // Phase 2: Sweet Spot Impact Flash (0.22 -> 0.32)
-    // Phase 3: The 360° Helicopter Whirl (0.24 -> 0.74)
+    // Phase 3: The 360° Helicopter Whirl (0.22 -> 0.72)
     // Phase 4: Sixer Comet Flight (0.24 -> 0.88)
-    // Phase 5: Follow-through Poise & Reset (0.74 -> 1.00)
+    // Phase 5: Follow-through Poise & Reset (0.72 -> 1.00)
 
     final bool isIncoming = progress < 0.22;
     final bool isImpact = progress >= 0.22 && progress <= 0.32;
-    final bool isTwirling = progress >= 0.24 && progress <= 0.74;
+    final bool isTwirling = progress >= 0.22 && progress <= 0.72;
     final bool isOutgoing = progress >= 0.24 && progress <= 0.88;
 
-    // Crouch & Coil offset (knee flexion into the yorker)
+    // Crouch & Coil offset (knee flexion into the blockhole)
     double crouchOffset = 0.0;
     if (progress < 0.22) {
-      crouchOffset = math.sin((progress / 0.22) * math.pi) * (s * 0.035);
-    } else if (progress <= 0.74) {
-      // Dynamic upward lift and torso unwinding
-      final p = (progress - 0.22) / 0.52;
-      crouchOffset = math.sin(p * math.pi) * (-s * 0.02);
+      crouchOffset = math.sin((progress / 0.22) * math.pi) * (s * 0.04);
+    } else if (progress <= 0.72) {
+      // Dynamic upward lift and torso unwinding as bat whips overhead
+      final p = (progress - 0.22) / 0.50;
+      crouchOffset = math.sin(p * math.pi) * (-s * 0.025);
     }
 
     final double hipX = stanceX;
     final double hipY = (h * 0.58) + crouchOffset;
-    final double shoulderX = w * 0.42;
-    final double shoulderY = (h * 0.39) + crouchOffset;
-    final Offset wristPivot = Offset(shoulderX + s * 0.08, (h * 0.46) + crouchOffset);
+    final double shoulderX = w * 0.40;
+    final double shoulderY = (h * 0.38) + crouchOffset;
 
     // ----------------------------------------------------
-    // 4. Athletic Batsman Silhouette (No Stick-Figure!)
+    // 4. The Bat Angle (Authentic Helicopter Physics!)
+    // ----------------------------------------------------
+    // Canvas rotation: 0 = right (+X), PI/2 = down (+Y), -PI/2 = up (-Y)
+    final double batLength = s * 0.46;
+    final double batWidth = math.max(3.2, s * 0.050);
+    double batAngle;
+
+    if (progress < 0.22) {
+      // Downswing from high backlift (-2.1 rad) to blockhole impact (+0.42 rad)
+      final p = progress / 0.22;
+      final curvedP = p * p; // Gravitational acceleration
+      batAngle = -2.1 + curvedP * (0.42 - (-2.1));
+    } else if (isTwirling) {
+      // THE 360° HELICOPTER WHIRL!
+      // Bottom wrist snaps the bat UPWARDS (counter-clockwise) in a full overhead rotor circle
+      final p = (progress - 0.22) / 0.50;
+      final curvedP = math.sin(p * math.pi / 2); // Explosive initial whip, smoothing out
+      batAngle = 0.42 - (curvedP * 2 * math.pi); // Full 360° upward whip
+    } else {
+      // Hold high follow-through and smoothly settle back to backlift stance
+      final p = (progress - 0.72) / 0.28;
+      const startAngle = 0.42 - 2 * math.pi;
+      const targetAngle = -2.1 - 2 * math.pi;
+      final curvedP = Curves.easeInOutSine.transform(p);
+      batAngle = ui.lerpDouble(startAngle, targetAngle, curvedP)!;
+    }
+
+    // Dynamic wrist pivot moving naturally with the swing
+    final double pivotOffsetX = math.cos(batAngle + math.pi / 2) * (s * 0.04);
+    final double pivotOffsetY = math.sin(batAngle + math.pi / 2) * (s * 0.03);
+    final Offset wristPivot = Offset(
+      shoulderX + s * 0.07 + pivotOffsetX,
+      (h * 0.45) + crouchOffset + pivotOffsetY,
+    );
+
+    // ----------------------------------------------------
+    // 5. Overhead 3D Helicopter Rotor Disc (Phase 3)
+    // ----------------------------------------------------
+    if (isTwirling) {
+      final p = (progress - 0.22) / 0.50;
+      final sweepAngle = math.min(2.8, p * 3.2 * math.pi);
+      final trailStartAngle = batAngle + sweepAngle; // Traces behind the counter-clockwise swing
+      final trailRadius = batLength * 0.95;
+
+      final trailRect = Rect.fromCircle(center: wristPivot, radius: trailRadius);
+
+      // A. Outer Luminous Rotor Glow Halo
+      final rotorGlowPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = math.max(4.5, s * 0.080)
+        ..strokeCap = StrokeCap.round
+        ..shader = ui.Gradient.sweep(
+          wristPivot,
+          [
+            Colors.transparent,
+            primaryColor.withValues(alpha: 0.15),
+            primaryColor.withValues(alpha: 0.65),
+            accentGold.withValues(alpha: 0.95),
+          ],
+          const [0.0, 0.30, 0.70, 1.0],
+          TileMode.clamp,
+          trailStartAngle - sweepAngle,
+          trailStartAngle,
+        );
+      canvas.drawArc(trailRect, trailStartAngle - sweepAngle, sweepAngle, false, rotorGlowPaint);
+
+      // B. Core High-Voltage Electric Beam
+      final rotorCorePaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = math.max(1.8, s * 0.028)
+        ..strokeCap = StrokeCap.round
+        ..shader = ui.Gradient.sweep(
+          wristPivot,
+          [
+            Colors.transparent,
+            primaryColor.withValues(alpha: 0.45),
+            Colors.white,
+          ],
+          const [0.0, 0.55, 1.0],
+          TileMode.clamp,
+          trailStartAngle - sweepAngle,
+          trailStartAngle,
+        );
+      canvas.drawArc(trailRect, trailStartAngle - sweepAngle, sweepAngle, false, rotorCorePaint);
+
+      // C. Rotor Tip Particle Embers
+      final tipPos = wristPivot + Offset(math.cos(batAngle) * trailRadius, math.sin(batAngle) * trailRadius);
+      final tipSparkPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(tipPos, math.max(2.0, s * 0.024), tipSparkPaint);
+      final tipHaloPaint = Paint()
+        ..color = primaryColor.withValues(alpha: 0.65)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3.5);
+      canvas.drawCircle(tipPos, math.max(4.0, s * 0.048), tipHaloPaint);
+    }
+
+    // ----------------------------------------------------
+    // 6. Athletic Batsman Silhouette (Muscular Contours)
     // ----------------------------------------------------
     final bodyPaint = Paint()
       ..color = silhouetteColor
@@ -525,58 +428,58 @@ class _HelicopterShotPainter extends CustomPainter {
       ..color = primaryColor
       ..style = PaintingStyle.fill;
 
-    // A. Back Leg (Firm anchor on backfoot crease)
+    // A. Back Leg (Firm anchor with calf and thigh contours)
     final backLegPath = Path()
       ..moveTo(hipX - s * 0.04, hipY)
-      ..lineTo(hipX - s * 0.09, groundY - s * 0.06) // Thigh / knee
-      ..lineTo(hipX - s * 0.10, groundY)            // Heel
-      ..lineTo(hipX - s * 0.04, groundY)            // Toe
-      ..lineTo(hipX - s * 0.02, groundY - s * 0.06)
-      ..lineTo(hipX + s * 0.01, hipY)
+      ..quadraticBezierTo(hipX - s * 0.08, hipY + s * 0.10, hipX - s * 0.09, groundY - s * 0.05)
+      ..lineTo(hipX - s * 0.11, groundY) // Heel
+      ..lineTo(hipX - s * 0.04, groundY) // Toe
+      ..quadraticBezierTo(hipX - s * 0.02, groundY - s * 0.06, hipX + s * 0.01, hipY)
       ..close();
     canvas.drawPath(backLegPath, bodyPaint);
 
-    // B. Front Leg (Stepped forward towards the dipping yorker with Batting Pad)
+    // B. Front Leg with Contoured Batting Pad
+    // Lunging forward towards the dipping yorker with prominent molded knee roll
     final frontLegPad = Path()
       ..moveTo(hipX + s * 0.02, hipY)
-      ..lineTo(w * 0.45, groundY - s * 0.12) // Contoured knee roll
-      ..lineTo(w * 0.51, groundY)            // Front boot planted
+      ..quadraticBezierTo(w * 0.43, hipY + s * 0.08, w * 0.46, groundY - s * 0.13) // High knee roll
+      ..lineTo(w * 0.52, groundY) // Boot planted on crease
       ..lineTo(w * 0.45, groundY)
-      ..lineTo(w * 0.40, groundY - s * 0.11)
-      ..lineTo(hipX - s * 0.01, hipY)
+      ..quadraticBezierTo(w * 0.41, groundY - s * 0.10, hipX - s * 0.01, hipY)
       ..close();
     canvas.drawPath(frontLegPad, bodyPaint);
 
     // Batting Pad Knee Roll & Straps (Athletic gear trim)
     final padStrapPaint = Paint()
       ..color = primaryColor.withValues(alpha: 0.90)
-      ..strokeWidth = math.max(1.2, s * 0.018)
+      ..strokeWidth = math.max(1.4, s * 0.020)
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
-    // Knee roll accent
+    // Molded knee roll accent
     canvas.drawLine(
-      Offset(w * 0.41, groundY - s * 0.11),
-      Offset(w * 0.46, groundY - s * 0.11),
+      Offset(w * 0.42, groundY - s * 0.12),
+      Offset(w * 0.47, groundY - s * 0.12),
       padStrapPaint,
     );
     // Lower shin strap
     canvas.drawLine(
-      Offset(w * 0.43, groundY - s * 0.04),
-      Offset(w * 0.49, groundY - s * 0.04),
+      Offset(w * 0.44, groundY - s * 0.04),
+      Offset(w * 0.50, groundY - s * 0.04),
       padStrapPaint,
     );
 
     // C. Athletic Torso & Team Jersey
+    // Dynamic arch leaning into blockhole then rising tall
     final torsoPath = Path()
       ..moveTo(hipX - s * 0.04, hipY)
-      ..lineTo(shoulderX - s * 0.05, shoulderY + s * 0.02)
+      ..quadraticBezierTo(shoulderX - s * 0.06, (hipY + shoulderY) / 2, shoulderX - s * 0.05, shoulderY + s * 0.02)
       ..lineTo(shoulderX + s * 0.06, shoulderY)
-      ..lineTo(hipX + s * 0.04, hipY)
+      ..quadraticBezierTo(shoulderX + s * 0.04, (hipY + shoulderY) / 2, hipX + s * 0.04, hipY)
       ..close();
     canvas.drawPath(torsoPath, bodyPaint);
 
-    // Dynamic Team Jersey Diagonal Sash
+    // Dynamic Team Jersey Diagonal Chevron Sash
     final sashPath = Path()
       ..moveTo(shoulderX - s * 0.02, shoulderY)
       ..lineTo(shoulderX + s * 0.03, shoulderY)
@@ -586,16 +489,28 @@ class _HelicopterShotPainter extends CustomPainter {
     canvas.drawPath(sashPath, accentPaint);
 
     // D. Batting Helmet with Visor Peak & Face Grill
-    final helmetCenter = Offset(shoulderX + s * 0.01, shoulderY - s * 0.08);
-    final helmetRadius = s * 0.065;
+    // Head tilts dynamically to track delivery, contact, and the skyward sixer!
+    double headTilt = 0.0;
+    if (progress < 0.22) {
+      headTilt = 0.12; // Looking down at the yorker
+    } else {
+      final p = ((progress - 0.22) / 0.50).clamp(0.0, 1.0);
+      headTilt = ui.lerpDouble(0.12, -0.25, p)!; // Tilting up watching the sixer sail
+    }
 
-    // Helmet dome
+    final helmetCenter = Offset(
+      shoulderX + s * 0.01 + math.cos(headTilt) * (s * 0.01),
+      shoulderY - s * 0.08 + math.sin(headTilt) * (s * 0.01),
+    );
+    final helmetRadius = s * 0.068;
+
+    // Helmet dome & rear neck flange
     canvas.drawCircle(helmetCenter, helmetRadius, bodyPaint);
 
-    // Visor Peak
+    // Visor Peak (Angled over brow)
     final visorPath = Path()
       ..moveTo(helmetCenter.dx + helmetRadius * 0.2, helmetCenter.dy - helmetRadius * 0.4)
-      ..lineTo(helmetCenter.dx + helmetRadius * 1.35, helmetCenter.dy + helmetRadius * 0.05)
+      ..lineTo(helmetCenter.dx + helmetRadius * 1.35, helmetCenter.dy + helmetRadius * (0.05 + headTilt))
       ..lineTo(helmetCenter.dx + helmetRadius * 0.6, helmetCenter.dy + helmetRadius * 0.35)
       ..close();
     canvas.drawPath(visorPath, accentPaint);
@@ -603,7 +518,7 @@ class _HelicopterShotPainter extends CustomPainter {
     // Metallic Face Grill (Silver helmet cage)
     final grillPaint = Paint()
       ..color = (isDark ? Colors.white70 : const Color(0xFF64748B))
-      ..strokeWidth = math.max(0.8, s * 0.012)
+      ..strokeWidth = math.max(0.9, s * 0.012)
       ..style = PaintingStyle.stroke;
 
     canvas.drawLine(
@@ -618,115 +533,48 @@ class _HelicopterShotPainter extends CustomPainter {
     );
 
     // ----------------------------------------------------
-    // 5. The Bat & 360° Helicopter Whirl Rotor
+    // 7. Articulated Arms & Molded Batting Gloves
     // ----------------------------------------------------
-    final double batLength = s * 0.44;
-    final double batWidth = math.max(3.0, s * 0.048);
-    double batAngle = -0.85; // Initial backlift stance angle
-
-    if (progress < 0.22) {
-      // Downswing into the blockhole
-      final p = progress / 0.22;
-      batAngle = ui.lerpDouble(-0.85, 0.32, p * p)!;
-    } else if (isTwirling) {
-      // THE 360° HELICOPTER WHIRL!
-      final p = (progress - 0.22) / 0.52;
-      // Fast start with powerful rotational torque
-      final curvedP = Curves.fastLinearToSlowEaseIn.transform(p);
-      batAngle = 0.32 + (curvedP * 2 * math.pi);
-    } else {
-      // Poise and reset
-      final p = (progress - 0.74) / 0.26;
-      final curvedP = Curves.easeInOutSine.transform(p);
-      batAngle = ui.lerpDouble(0.32 + 2 * math.pi, 0.32 + 2 * math.pi + (math.pi * 0.65), curvedP)!;
-    }
-
-    // Helicopter 3D Rotor Blur Trails (Signature visual)
-    if (isTwirling) {
-      final p = (progress - 0.22) / 0.52;
-      final sweepAngle = math.min(2.4, p * 2.8 * math.pi);
-      final trailStartAngle = batAngle - sweepAngle;
-      final trailRadius = batLength * 0.95;
-
-      final trailRect = Rect.fromCircle(center: wristPivot, radius: trailRadius);
-
-      // A. Outer Luminous Rotor Glow
-      final rotorGlowPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(4.0, s * 0.075)
-        ..strokeCap = StrokeCap.round
-        ..shader = ui.Gradient.sweep(
-          wristPivot,
-          [
-            Colors.transparent,
-            primaryColor.withValues(alpha: 0.15),
-            primaryColor.withValues(alpha: 0.60),
-            accentGold.withValues(alpha: 0.90),
-          ],
-          [0.0, 0.30, 0.70, 1.0],
-          TileMode.clamp,
-          trailStartAngle,
-          trailStartAngle + sweepAngle,
-        );
-      canvas.drawArc(trailRect, trailStartAngle, sweepAngle, false, rotorGlowPaint);
-
-      // B. Core High-Voltage Electric Beam
-      final rotorCorePaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(1.8, s * 0.028)
-        ..strokeCap = StrokeCap.round
-        ..shader = ui.Gradient.sweep(
-          wristPivot,
-          [
-            Colors.transparent,
-            primaryColor.withValues(alpha: 0.45),
-            Colors.white,
-          ],
-          [0.0, 0.55, 1.0],
-          TileMode.clamp,
-          trailStartAngle,
-          trailStartAngle + sweepAngle,
-        );
-      canvas.drawArc(trailRect, trailStartAngle, sweepAngle, false, rotorCorePaint);
-    }
-
-    // Articulated Arms holding Bat Handle
-    final armPaint = Paint()
-      ..color = silhouetteColor
-      ..strokeWidth = math.max(2.8, s * 0.046)
-      ..strokeCap = StrokeCap.round;
-
     final handGripPos = wristPivot + Offset(
       math.cos(batAngle) * (batLength * 0.16),
       math.sin(batAngle) * (batLength * 0.16),
     );
 
+    final armPaint = Paint()
+      ..color = silhouetteColor
+      ..strokeWidth = math.max(3.0, s * 0.046)
+      ..strokeCap = StrokeCap.round;
+
     // Left Arm (Top Hand guide)
-    canvas.drawLine(
-      Offset(shoulderX - s * 0.02, shoulderY + s * 0.03),
-      handGripPos,
-      armPaint,
-    );
+    final shoulderL = Offset(shoulderX - s * 0.02, shoulderY + s * 0.03);
+    final elbowL = Offset((shoulderL.dx + handGripPos.dx) / 2 - s * 0.02, (shoulderL.dy + handGripPos.dy) / 2 + s * 0.02);
+    canvas.drawLine(shoulderL, elbowL, armPaint);
+    canvas.drawLine(elbowL, handGripPos, armPaint);
 
     // Right Arm (Bottom Hand power generator)
-    canvas.drawLine(
-      Offset(shoulderX + s * 0.03, shoulderY + s * 0.04),
-      handGripPos,
-      armPaint,
-    );
+    final shoulderR = Offset(shoulderX + s * 0.03, shoulderY + s * 0.04);
+    final elbowR = Offset((shoulderR.dx + handGripPos.dx) / 2 + s * 0.02, (shoulderR.dy + handGripPos.dy) / 2 + s * 0.01);
+    canvas.drawLine(shoulderR, elbowR, armPaint);
+    canvas.drawLine(elbowR, handGripPos, armPaint);
 
     // Batting Gloves (Molded padded gloves on handle)
     final glovePaint = Paint()
       ..color = primaryColor
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(handGripPos, math.max(2.5, s * 0.035), glovePaint);
+    canvas.drawCircle(handGripPos, math.max(2.8, s * 0.038), glovePaint);
+    final gloveCuffPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(handGripPos, math.max(1.4, s * 0.018), gloveCuffPaint);
 
-    // Draw the Detailed Cricket Bat
+    // ----------------------------------------------------
+    // 8. The Detailed Cricket Bat
+    // ----------------------------------------------------
     canvas.save();
     canvas.translate(wristPivot.dx, wristPivot.dy);
     canvas.rotate(batAngle);
 
-    // 1. Rubber Grip Handle
+    // A. Rubber Grip Handle
     final handlePaint = Paint()
       ..color = const Color(0xFFE2E8F0)
       ..strokeWidth = math.max(1.8, batWidth * 0.45)
@@ -737,7 +585,7 @@ class _HelicopterShotPainter extends CustomPainter {
       handlePaint,
     );
 
-    // 2. English Willow Blade
+    // B. English Willow Blade
     final bladeRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(batLength * 0.20, -batWidth / 2, batLength * 0.80, batWidth),
       Radius.circular(batWidth * 0.25),
@@ -755,7 +603,7 @@ class _HelicopterShotPainter extends CustomPainter {
       );
     canvas.drawRRect(bladeRect, bladePaint);
 
-    // 3. Bat Brand Crest (Kreeda Vermilion Badge)
+    // C. Bat Brand Crest (Kreeda Vermilion Badge)
     final stickerRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(batLength * 0.36, -batWidth * 0.42, batLength * 0.35, batWidth * 0.84),
       Radius.circular(batWidth * 0.18),
@@ -765,38 +613,38 @@ class _HelicopterShotPainter extends CustomPainter {
     canvas.restore();
 
     // ----------------------------------------------------
-    // 6. Sweet-Spot Impact Explosion & Sparks (Phase 2)
+    // 9. Sweet-Spot Impact Explosion & Sparks (Phase 2)
     // ----------------------------------------------------
     if (isImpact) {
       final p = (progress - 0.22) / 0.10; // 0.0 to 1.0 during contact
-      final shockwaveRadius = p * (s * 0.34);
+      final shockwaveRadius = p * (s * 0.36);
       final shockwaveAlpha = (1.0 - p).clamp(0.0, 1.0);
 
       // Primary Energy Orange Sonic Ring
       final shockwavePaint = Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(1.5, (1.0 - p) * (s * 0.045))
-        ..color = primaryColor.withValues(alpha: shockwaveAlpha * 0.90);
+        ..strokeWidth = math.max(1.8, (1.0 - p) * (s * 0.050))
+        ..color = primaryColor.withValues(alpha: shockwaveAlpha * 0.95);
       canvas.drawCircle(impactPoint, shockwaveRadius, shockwavePaint);
 
       // Secondary Gold Shockwave Ring
       final shockwaveGold = Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(1.0, (1.0 - p) * (s * 0.030))
-        ..color = accentGold.withValues(alpha: shockwaveAlpha * 0.75);
-      canvas.drawCircle(impactPoint, shockwaveRadius * 0.65, shockwaveGold);
+        ..strokeWidth = math.max(1.0, (1.0 - p) * (s * 0.032))
+        ..color = accentGold.withValues(alpha: shockwaveAlpha * 0.80);
+      canvas.drawCircle(impactPoint, shockwaveRadius * 0.68, shockwaveGold);
 
       // Sweet Spot Core Contact Flash
       final flashPaint = Paint()
         ..color = Colors.white.withValues(alpha: shockwaveAlpha)
         ..style = PaintingStyle.fill;
-      canvas.drawCircle(impactPoint, (1.0 - p) * (s * 0.10), flashPaint);
+      canvas.drawCircle(impactPoint, (1.0 - p) * (s * 0.12), flashPaint);
 
-      // 8 Dynamic Radiating Sparks
-      const sparkCount = 8;
+      // 10 Dynamic Radiating Sparks
+      const sparkCount = 10;
       for (int i = 0; i < sparkCount; i++) {
-        final sparkAngle = (i * (2 * math.pi / sparkCount)) + 0.25;
-        final sparkDist = p * (s * 0.28);
+        final sparkAngle = (i * (2 * math.pi / sparkCount)) + 0.20;
+        final sparkDist = p * (s * 0.32);
         final sparkPos = impactPoint + Offset(
           math.cos(sparkAngle) * sparkDist,
           math.sin(sparkAngle) * sparkDist,
@@ -809,14 +657,14 @@ class _HelicopterShotPainter extends CustomPainter {
           ..style = PaintingStyle.fill;
         canvas.drawCircle(
           sparkPos,
-          math.max(1.0, (1.0 - p) * (s * 0.024)),
+          math.max(1.0, (1.0 - p) * (s * 0.026)),
           sparkPaint,
         );
       }
     }
 
     // ----------------------------------------------------
-    // 7. Leather Ball & Sixer Rocket Comet
+    // 10. Leather Ball & Sixer Rocket Comet
     // ----------------------------------------------------
     Offset ballPos = Offset.zero;
     bool shouldDrawBall = false;
@@ -825,7 +673,7 @@ class _HelicopterShotPainter extends CustomPainter {
       // Yorker dips sharply into the blockhole
       final p = progress / 0.22;
       final curvedP = p * p; // Gravitational drop
-      final startPos = Offset(w * 0.96, h * 0.18);
+      final startPos = Offset(w * 0.96, h * 0.16);
       ballPos = Offset(
         ui.lerpDouble(startPos.dx, impactPoint.dx, p)!,
         ui.lerpDouble(startPos.dy, impactPoint.dy, curvedP)!,
@@ -836,8 +684,8 @@ class _HelicopterShotPainter extends CustomPainter {
       final p = (progress - 0.24) / 0.64;
       final curvedP = Curves.easeOutQuad.transform(p);
 
-      final targetX = w * 1.08;
-      final targetY = h * 0.04;
+      final targetX = w * 1.12;
+      final targetY = h * 0.03;
 
       ballPos = Offset(
         ui.lerpDouble(impactPoint.dx, targetX, p)!,
@@ -846,16 +694,16 @@ class _HelicopterShotPainter extends CustomPainter {
       shouldDrawBall = true;
 
       // Radiant Comet Tail behind soaring sixer
-      final tailLength = math.min(s * 0.38, p * (s * 0.70));
+      final tailLength = math.min(s * 0.42, p * (s * 0.75));
       final tailVector = (ballPos - impactPoint);
       if (tailVector.distance > 2) {
         final norm = tailVector / tailVector.distance;
         final tailStart = ballPos - (norm * tailLength);
 
-        // Outer Flame Trail
+        // Outer Flame Plasma Trail
         final cometPaint = Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = math.max(2.2, s * 0.042)
+          ..strokeWidth = math.max(2.4, s * 0.046)
           ..strokeCap = StrokeCap.round
           ..shader = ui.Gradient.linear(
             tailStart,
@@ -865,14 +713,14 @@ class _HelicopterShotPainter extends CustomPainter {
               primaryColor.withValues(alpha: 0.35),
               accentGold.withValues(alpha: 0.90),
             ],
-            [0.0, 0.40, 1.0],
+            const [0.0, 0.40, 1.0],
           );
         canvas.drawLine(tailStart, ballPos, cometPaint);
 
         // Core White Beam Streak
         final cometCorePaint = Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = math.max(1.2, s * 0.018)
+          ..strokeWidth = math.max(1.2, s * 0.020)
           ..strokeCap = StrokeCap.round
           ..shader = ui.Gradient.linear(
             tailStart,
@@ -892,13 +740,13 @@ class _HelicopterShotPainter extends CustomPainter {
 
     // Render 3D Leather Cricket Ball
     if (shouldDrawBall) {
-      final ballRadius = math.max(3.2, s * 0.042);
+      final ballRadius = math.max(3.4, s * 0.044);
 
       // Ambient ball glow
       final ballGlowPaint = Paint()
-        ..color = primaryColor.withValues(alpha: 0.50)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3.8);
-      canvas.drawCircle(ballPos, ballRadius * 1.35, ballGlowPaint);
+        ..color = primaryColor.withValues(alpha: 0.55)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.0);
+      canvas.drawCircle(ballPos, ballRadius * 1.4, ballGlowPaint);
 
       // 3D Leather sphere gradient
       final ballSpherePaint = Paint()

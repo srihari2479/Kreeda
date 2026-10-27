@@ -605,7 +605,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('KreedaLoading Helicopter Shot renders with theme tokens, progress bar, and zero overflow', (WidgetTester tester) async {
+  testWidgets('KreedaLoading Helicopter Shot renders purely on dimmed background without container or text', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(360 * 3, 780 * 3);
     tester.view.devicePixelRatio = 3.0;
     addTearDown(() {
@@ -622,7 +622,6 @@ void main() {
               child: ElevatedButton(
                 onPressed: () => KreedaLoading.show(
                   context,
-                  message: 'AUTHENTICATING WITH Apple...',
                 ),
                 child: const Text('SHOW LOADING'),
               ),
@@ -638,13 +637,14 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
 
-    // Verify UI components in light theme
-    expect(find.text('KREEDA'), findsOneWidget);
-    expect(find.text('HELICOPTER SHOT'), findsOneWidget);
-    expect(find.text('AUTHENTICATING WITH Apple...'), findsOneWidget);
+    // Verify Helicopter Shot widget is rendered cleanly
     expect(find.byType(KreedaLoadingWidget), findsOneWidget);
 
-    // Advance time and check animation loop and message rotation
+    // Verify container text, progress bar, and message are completely omitted as requested
+    expect(find.text('KREEDA'), findsNothing);
+    expect(find.text('HELICOPTER SHOT'), findsNothing);
+
+    // Advance time through all phases of the 2200ms loop
     await tester.pump(const Duration(milliseconds: 1500));
     expect(tester.takeException(), isNull);
 
