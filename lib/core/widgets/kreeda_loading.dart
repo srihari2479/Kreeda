@@ -396,6 +396,10 @@ class _HelicopterShotPainter extends CustomPainter {
       ..color = padBorderColor.withValues(alpha: 0.50)
       ..style = PaintingStyle.stroke
       ..strokeWidth = math.max(0.8, s * 0.008);
+    final padStrapPaint = Paint()
+      ..color = primaryColor
+      ..strokeWidth = math.max(1.2, s * 0.012)
+      ..strokeCap = StrokeCap.round;
 
     // Dynamic athletic weight shift synchronized with swing
     final crouch = math.sin(progress * 2 * math.pi) * (s * 0.015);
@@ -403,7 +407,7 @@ class _HelicopterShotPainter extends CustomPainter {
     final double stX = stanceX + leanX;
     final Offset hip = Offset(stX, groundY - s * 0.24 + crouch);
 
-    // A. Muscular Athletic Back Leg with Power Heel Lift & Flexed Spikes
+    // A. Muscular Athletic Back Leg with Power Heel Lift & Batting Pad
     final thighTop = Offset(hip.dx - s * 0.025, hip.dy + s * 0.005);
     final hamstring = Offset(stX - s * 0.070, hip.dy + s * 0.060);
     final kneeFold = Offset(stX - s * 0.095, groundY - s * 0.095 + crouch * 0.4);
@@ -412,35 +416,49 @@ class _HelicopterShotPainter extends CustomPainter {
     final heelLifted = Offset(stX - s * 0.188, groundY - s * 0.028);
     final toeBall = Offset(stX - s * 0.160, groundY);
     final toeTip = Offset(stX - s * 0.138, groundY);
-    final instep = Offset(stX - s * 0.145, groundY - s * 0.025);
     final shinMid = Offset(stX - s * 0.105, groundY - s * 0.055);
     final kneeFront = Offset(stX - s * 0.055, groundY - s * 0.090 + crouch * 0.4);
     final quadFront = Offset(stX - s * 0.020, hip.dy + s * 0.070);
     final thighFront = Offset(hip.dx + s * 0.015, hip.dy + s * 0.025);
 
-    final backLegPath = Path()
+    // Rear thigh trousers
+    final backThighPath = Path()
       ..moveTo(thighTop.dx, thighTop.dy)
       ..lineTo(hamstring.dx, hamstring.dy)
-      ..lineTo(kneeFold.dx, kneeFold.dy)
-      ..lineTo(calfCurve.dx, calfCurve.dy)
-      ..lineTo(ankleBack.dx, ankleBack.dy)
-      ..lineTo(heelLifted.dx, heelLifted.dy)
-      ..lineTo(toeBall.dx, toeBall.dy)
-      ..lineTo(toeTip.dx, toeTip.dy)
-      ..lineTo(instep.dx, instep.dy)
-      ..lineTo(shinMid.dx, shinMid.dy)
-      ..lineTo(kneeFront.dx, kneeFront.dy)
+      ..lineTo(kneeFold.dx - s * 0.005, kneeFold.dy - s * 0.015)
+      ..lineTo(kneeFront.dx + s * 0.008, kneeFront.dy - s * 0.015)
       ..lineTo(quadFront.dx, quadFront.dy)
       ..lineTo(thighFront.dx, thighFront.dy)
       ..close();
-    canvas.drawPath(backLegPath, pantPaint);
+    canvas.drawPath(backThighPath, pantPaint);
 
-    // Subtle trousers crease & athletic knee articulation
-    final legCreasePaint = Paint()
-      ..color = (isDark ? const Color(0xFFCBD5E1) : const Color(0xFF94A3B8)).withValues(alpha: 0.50)
-      ..strokeWidth = math.max(1.0, s * 0.009)
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(kneeFold, kneeFront, legCreasePaint);
+    // Rear Cricket Batting Pad (Full authentic cricket kit)
+    final rearPadPath = Path()
+      ..moveTo(kneeFold.dx - s * 0.015, kneeFold.dy - s * 0.025)
+      ..lineTo(kneeFront.dx + s * 0.018, kneeFront.dy - s * 0.020)
+      ..lineTo(kneeFront.dx + s * 0.022, kneeFront.dy + s * 0.010)
+      ..lineTo(shinMid.dx + s * 0.008, groundY - s * 0.025)
+      ..lineTo(toeTip.dx, toeTip.dy)
+      ..lineTo(toeBall.dx, toeBall.dy)
+      ..lineTo(heelLifted.dx, heelLifted.dy)
+      ..lineTo(ankleBack.dx - s * 0.012, groundY - s * 0.025)
+      ..lineTo(calfCurve.dx - s * 0.015, groundY - s * 0.055)
+      ..lineTo(kneeFold.dx - s * 0.018, kneeFold.dy + s * 0.010)
+      ..close();
+    canvas.drawPath(rearPadPath, padPaint);
+    canvas.drawPath(rearPadPath, padBorderPaint);
+
+    // Rear Pad Straps
+    canvas.drawLine(
+      Offset(kneeFold.dx - s * 0.010, kneeFold.dy),
+      Offset(kneeFront.dx + s * 0.012, kneeFront.dy),
+      padStrapPaint,
+    );
+    canvas.drawLine(
+      Offset(calfCurve.dx - s * 0.010, groundY - s * 0.055),
+      Offset(shinMid.dx + s * 0.005, groundY - s * 0.055),
+      padStrapPaint,
+    );
 
     // B. Front Leg Lunging Thigh
     final fKnee = Offset(stX + s * 0.145, groundY - s * 0.145 + crouch * 0.6);
@@ -472,12 +490,7 @@ class _HelicopterShotPainter extends CustomPainter {
     canvas.drawPath(padPath, padPaint);
     canvas.drawPath(padPath, padBorderPaint);
 
-    // Batting Pad Knee Roll & Straps
-    final padStrapPaint = Paint()
-      ..color = primaryColor
-      ..strokeWidth = math.max(1.2, s * 0.012)
-      ..strokeCap = StrokeCap.round;
-
+    // Front Batting Pad Knee Roll & Straps
     canvas.drawLine(
       Offset(fKnee.dx - s * 0.024, fKnee.dy),
       Offset(fKnee.dx + s * 0.054, fKnee.dy + s * 0.008),
