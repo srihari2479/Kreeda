@@ -205,9 +205,9 @@ class _HelicopterShotPainter extends CustomPainter {
     final double h = size.height;
     final double s = math.min(w, h);
 
-    // Dynamic ground & layout
+    // Dynamic ground & layout (horizontally centered composition)
     final double groundY = h * 0.80;
-    final double stanceX = w * 0.30;
+    final double stanceX = w * 0.5 - s * 0.135;
 
     // ----------------------------------------------------
     // 1. Front-Angle Circular Loader Geometry
@@ -251,20 +251,20 @@ class _HelicopterShotPainter extends CustomPainter {
 
     // Pitch turf crease line
     canvas.drawLine(
-      Offset(w * 0.06, groundY),
-      Offset(w * 0.94, groundY),
+      Offset(w * 0.02, groundY),
+      Offset(w * 0.98, groundY),
       groundPaint,
     );
 
     // Popping crease mark
     canvas.drawLine(
-      Offset(w * 0.30, groundY - s * 0.055),
-      Offset(w * 0.30, groundY + s * 0.025),
+      Offset(stanceX, groundY - s * 0.055),
+      Offset(stanceX, groundY + s * 0.025),
       groundPaint,
     );
 
     // Timber Stumps & Bails behind batsman
-    final stumpX = w * 0.14;
+    final stumpX = stanceX - s * 0.25;
     final stumpHeight = s * 0.22;
     final stumpPaint = Paint()
       ..shader = LinearGradient(
@@ -303,18 +303,8 @@ class _HelicopterShotPainter extends CustomPainter {
     );
 
     // ----------------------------------------------------
-    // 4. FRONT-ANGLE CIRCULAR LOADER RING (The Core Visual)
+    // 4. FRONT-ANGLE CIRCULAR LOADER KINEMATICS
     // ----------------------------------------------------
-    // Subtle ambient circular track
-    final trackPaint = Paint()
-      ..color = (isDark ? Colors.white : AppColors.primaryNavy).withValues(alpha: 0.12)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = math.max(1.0, s * 0.010);
-    canvas.drawOval(
-      Rect.fromCenter(center: circleCenter, width: rx * 2, height: ry * 2),
-      trackPaint,
-    );
-
     // Continuous Circular Bat Angle Kinematics (Unified Counter-Clockwise Rotation):
     // Phase 1: 0.00 to 0.25 (Ball arrives, bat downswings behind body & along turf into blockhole impact)
     // Phase 2: 0.25 to 0.75 (THE 360° HELICOPTER WHIRL in the front circular loader!)
@@ -698,7 +688,7 @@ class _HelicopterShotPainter extends CustomPainter {
       // Fast dipping yorker into the blockhole
       final p = progress / 0.25;
       final curved = p * p;
-      final startPos = Offset(w * 0.95, h * 0.16);
+      final startPos = Offset(w * 0.98, h * 0.16);
       ballPos = Offset(
         ui.lerpDouble(startPos.dx, impactPoint.dx, p)!,
         ui.lerpDouble(startPos.dy, impactPoint.dy, curved)!,
