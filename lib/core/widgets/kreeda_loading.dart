@@ -403,25 +403,42 @@ class _HelicopterShotPainter extends CustomPainter {
     final double stX = stanceX + leanX;
     final Offset hip = Offset(stX, groundY - s * 0.24 + crouch);
 
-    // A. Back Leg (Firm athletic anchor on turf)
-    final bKnee = Offset(stX - s * 0.122, groundY - s * 0.122 + crouch * 0.4);
-    final bAnkle = Offset(stX - s * 0.198, groundY - s * 0.030);
-    final bToe = Offset(stX - s * 0.145, groundY);
-    final bHeel = Offset(stX - s * 0.220, groundY);
+    // A. Muscular Athletic Back Leg (Firm anchor braced against shot torque)
+    final thighBack = Offset(hip.dx - s * 0.020, hip.dy + s * 0.010);
+    final hamstring = Offset(stX - s * 0.070, hip.dy + s * 0.060);
+    final kneeBack = Offset(stX - s * 0.110, groundY - s * 0.115 + crouch * 0.4);
+    final calfBack = Offset(stX - s * 0.160, groundY - s * 0.065);
+    final ankleBack = Offset(stX - s * 0.190, groundY - s * 0.022);
+    final bHeel = Offset(stX - s * 0.215, groundY);
+    final bToe = Offset(stX - s * 0.135, groundY);
+    final instep = Offset(stX - s * 0.145, groundY - s * 0.022);
+    final shinFront = Offset(stX - s * 0.115, groundY - s * 0.065);
+    final kneeFront = Offset(stX - s * 0.075, groundY - s * 0.115 + crouch * 0.4);
+    final quadFront = Offset(stX - s * 0.035, hip.dy + s * 0.070);
+    final thighFront = Offset(hip.dx + s * 0.015, hip.dy + s * 0.025);
 
     final backLegPath = Path()
-      ..moveTo(hip.dx - s * 0.030, hip.dy + s * 0.008)
-      ..lineTo(stX - s * 0.076, hip.dy + s * 0.060)
-      ..lineTo(bKnee.dx - s * 0.024, bKnee.dy)
-      ..lineTo(bAnkle.dx - s * 0.008, bAnkle.dy)
+      ..moveTo(thighBack.dx, thighBack.dy)
+      ..lineTo(hamstring.dx, hamstring.dy)
+      ..lineTo(kneeBack.dx, kneeBack.dy)
+      ..lineTo(calfBack.dx, calfBack.dy)
+      ..lineTo(ankleBack.dx, ankleBack.dy)
       ..lineTo(bHeel.dx, bHeel.dy)
       ..lineTo(bToe.dx, bToe.dy)
-      ..lineTo(bAnkle.dx + s * 0.030, bAnkle.dy + s * 0.008)
-      ..lineTo(bKnee.dx + s * 0.030, bKnee.dy + s * 0.015)
-      ..lineTo(stX - s * 0.038, hip.dy + s * 0.076)
-      ..lineTo(hip.dx + s * 0.015, hip.dy + s * 0.015)
+      ..lineTo(instep.dx, instep.dy)
+      ..lineTo(shinFront.dx, shinFront.dy)
+      ..lineTo(kneeFront.dx, kneeFront.dy)
+      ..lineTo(quadFront.dx, quadFront.dy)
+      ..lineTo(thighFront.dx, thighFront.dy)
       ..close();
     canvas.drawPath(backLegPath, pantPaint);
+
+    // Subtle trousers crease & athletic knee articulation
+    final legCreasePaint = Paint()
+      ..color = (isDark ? const Color(0xFFCBD5E1) : const Color(0xFF94A3B8)).withValues(alpha: 0.50)
+      ..strokeWidth = math.max(1.0, s * 0.009)
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(kneeBack, kneeFront, legCreasePaint);
 
     // B. Front Leg Lunging Thigh
     final fKnee = Offset(stX + s * 0.145, groundY - s * 0.145 + crouch * 0.6);
@@ -528,51 +545,95 @@ class _HelicopterShotPainter extends CustomPainter {
       ..close();
     canvas.drawPath(sashPath, accentPaint);
 
-    // E. Muscular Neck & Batting Helmet
-    final neckBot = Offset(stX + s * 0.092, shoulderL.dy - s * 0.008);
-    final headCenter = Offset(stX + s * 0.115, groundY - s * 0.485 + crouch);
+    // E. Ergonomic Neck & Professional Batting Helmet (Masuri Pro Style)
+    final neckBase = Offset(stX + s * 0.080, shoulderL.dy - s * 0.005);
+    final headCenter = Offset(stX + s * 0.105, groundY - s * 0.465 + crouch);
 
+    // Natural athletic neck nestled into jersey
     final neckPath = Path()
-      ..moveTo(neckBot.dx - s * 0.024, neckBot.dy)
-      ..lineTo(headCenter.dx - s * 0.015, headCenter.dy + s * 0.030)
-      ..lineTo(headCenter.dx + s * 0.024, headCenter.dy + s * 0.030)
-      ..lineTo(neckBot.dx + s * 0.024, neckBot.dy)
+      ..moveTo(neckBase.dx - s * 0.018, neckBase.dy)
+      ..lineTo(headCenter.dx - s * 0.014, headCenter.dy + s * 0.022)
+      ..lineTo(headCenter.dx + s * 0.016, headCenter.dy + s * 0.025)
+      ..lineTo(neckBase.dx + s * 0.018, neckBase.dy)
       ..close();
     canvas.drawPath(neckPath, skinPaint);
 
-    // Helmet dome (Clean aerodynamic shell)
-    final helmetRadius = s * 0.042;
-    canvas.drawCircle(headCenter, helmetRadius, jerseyPaint);
-    // Ear protector pad
-    canvas.drawCircle(
-      headCenter + Offset(-s * 0.008, s * 0.008),
-      s * 0.015,
-      Paint()..color = isDark ? const Color(0xFF020617) : const Color(0xFF050B18),
+    // Jersey V-collar trim
+    final collarPaint = Paint()
+      ..color = primaryColor
+      ..strokeWidth = math.max(1.2, s * 0.012)
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(
+      Offset(neckBase.dx - s * 0.020, neckBase.dy),
+      Offset(neckBase.dx, neckBase.dy + s * 0.010),
+      collarPaint,
+    );
+    canvas.drawLine(
+      Offset(neckBase.dx, neckBase.dy + s * 0.010),
+      Offset(neckBase.dx + s * 0.020, neckBase.dy),
+      collarPaint,
     );
 
-    // Swept Brow Visor Peak (No bird beak! Sleek aerodynamic profile)
-    final visorPath = Path()
-      ..moveTo(headCenter.dx + s * 0.004, headCenter.dy - s * 0.008)
-      ..lineTo(headCenter.dx + s * 0.054, headCenter.dy + s * 0.004)
-      ..lineTo(headCenter.dx + s * 0.046, headCenter.dy + s * 0.015)
-      ..lineTo(headCenter.dx + s * 0.015, headCenter.dy + s * 0.008)
-      ..close();
-    canvas.drawPath(visorPath, accentPaint);
+    // Helmet dome (Streamlined aerodynamic shell)
+    final helmetRadius = s * 0.038;
+    canvas.drawCircle(headCenter, helmetRadius, jerseyPaint);
 
-    // Face Grille (Curved protective titanium cage)
+    // Ear protector contour cup
+    final earGuardPaint = Paint()
+      ..color = isDark ? const Color(0xFF020617) : const Color(0xFF050B18)
+      ..style = PaintingStyle.fill;
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: headCenter + Offset(-s * 0.008, s * 0.010),
+        width: s * 0.022,
+        height: s * 0.020,
+      ),
+      earGuardPaint,
+    );
+
+    // Sleek integrated helmet brow peak (flush aerodynamic visor, NO bird beak!)
+    final peakPath = Path()
+      ..moveTo(headCenter.dx - s * 0.010, headCenter.dy - s * 0.010)
+      ..lineTo(headCenter.dx + s * 0.034, headCenter.dy + s * 0.002)
+      ..lineTo(headCenter.dx + s * 0.028, headCenter.dy + s * 0.010)
+      ..lineTo(headCenter.dx + s * 0.005, headCenter.dy + s * 0.005)
+      ..close();
+    canvas.drawPath(peakPath, jerseyPaint);
+
+    // Sleek orange brow accent stripe along visor edge
+    final peakStripePaint = Paint()
+      ..color = primaryColor
+      ..strokeWidth = math.max(1.2, s * 0.011)
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(
+      Offset(headCenter.dx - s * 0.010, headCenter.dy - s * 0.010),
+      Offset(headCenter.dx + s * 0.034, headCenter.dy + s * 0.002),
+      peakStripePaint,
+    );
+
+    // Protective Titanium Face Grille Cage (Chin bar + horizontal sight bars)
     final grillePaint = Paint()
       ..color = isDark ? const Color(0xFFCBD5E1) : const Color(0xFF64748B)
-      ..strokeWidth = math.max(0.8, s * 0.008)
-      ..style = PaintingStyle.stroke;
+      ..strokeWidth = math.max(0.9, s * 0.009)
+      ..strokeCap = StrokeCap.round;
 
+    final chinPoint = Offset(headCenter.dx + s * 0.024, headCenter.dy + s * 0.034);
+    final earMount = Offset(headCenter.dx - s * 0.008, headCenter.dy + s * 0.012);
+    final browMount = Offset(headCenter.dx + s * 0.026, headCenter.dy + s * 0.006);
+
+    // Main structural perimeter bars
+    canvas.drawLine(earMount, chinPoint, grillePaint);
+    canvas.drawLine(browMount, chinPoint, grillePaint);
+
+    // Dual eye-level vision bars
     canvas.drawLine(
-      headCenter + Offset(s * 0.015, s * 0.012),
-      headCenter + Offset(s * 0.046, s * 0.027),
+      Offset(headCenter.dx + s * 0.004, headCenter.dy + s * 0.014),
+      Offset(headCenter.dx + s * 0.026, headCenter.dy + s * 0.018),
       grillePaint,
     );
     canvas.drawLine(
-      headCenter + Offset(s * 0.010, s * 0.027),
-      headCenter + Offset(s * 0.038, s * 0.038),
+      Offset(headCenter.dx + s * 0.002, headCenter.dy + s * 0.024),
+      Offset(headCenter.dx + s * 0.024, headCenter.dy + s * 0.026),
       grillePaint,
     );
 
