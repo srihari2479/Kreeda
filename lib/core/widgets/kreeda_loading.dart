@@ -6,9 +6,9 @@ import '../theme/app_colors.dart';
 /// Global Creative Cricket Loading System for Kreeda ("Cricket Lives Here").
 /// Features an athletic cricketer executing MS Dhoni's legendary Helicopter Shot:
 /// 1. Fast dipping inswinging yorker targeted into the blockhole
-/// 2. Deep athletic forward lunge and sweet-spot impact contact flash
-/// 3. Explosive bottom-wrist upward whip digging the ball out
-/// 4. Trademark 360° overhead horizontal helicopter rotor bat whirl with luminous speed halo
+/// 2. Bat accelerates down in the front circular loading arc
+/// 3. Continuous circular sweet-spot impact contact flash & sparks
+/// 4. Trademark 360° front-angle circular helicopter rotor bat whirl acting as the circular loading visual
 /// 5. Rocketing sixer soaring into the stadium sky with a radiant dual-core comet tail
 /// 6. Clean, distraction-free dimmed frosted background overlay without any container boxes or text.
 class KreedaLoading {
@@ -182,6 +182,7 @@ class _KreedaLoadingWidgetState extends State<KreedaLoadingWidget>
 }
 
 /// High-Performance Vector CustomPainter visualizing MS Dhoni's iconic Helicopter Shot.
+/// Bat rotates in a continuous front-angle circular loader wheel, delivering a true circular loading visual.
 /// 100% Vector Math & GPU-accelerated Canvas operations (60-120 FPS guaranteed).
 class _HelicopterShotPainter extends CustomPainter {
   final double progress; // 0.0 to 1.0 (2400ms loop)
@@ -204,15 +205,29 @@ class _HelicopterShotPainter extends CustomPainter {
     final double h = size.height;
     final double s = math.min(w, h);
 
-    // Dynamic ground & stance layout
+    // Dynamic ground & layout
     final double groundY = h * 0.80;
-    final double stanceX = w * 0.37;
-    final Offset impactPoint = Offset(w * 0.55, groundY - s * 0.03);
+    final double stanceX = w * 0.30;
 
     // ----------------------------------------------------
-    // 1. Stadium Ambient Floodlight Glow
+    // 1. Front-Angle Circular Loader Geometry
     // ----------------------------------------------------
-    final floodlightCenter = Offset(w * 0.45, h * 0.50);
+    // The circular loading wheel is centered prominently in front of the batsman's chest!
+    final circleCenter = Offset(stanceX + s * 0.22, groundY - s * 0.28);
+    final double rx = s * 0.30;
+    final double ry = s * 0.28;
+
+    // Impact is at theta = 65° (bottom-right of the circular loader in the blockhole)
+    const double impactAngle = 65.0 * math.pi / 180.0;
+    final impactPoint = circleCenter + Offset(
+      math.cos(impactAngle) * rx,
+      math.sin(impactAngle) * ry,
+    );
+    const double backliftAngle = -math.pi * 0.72; // -130°
+
+    // ----------------------------------------------------
+    // 2. Stadium Ambient Floodlight Glow
+    // ----------------------------------------------------
     final floodlightPaint = Paint()
       ..shader = RadialGradient(
         colors: [
@@ -222,12 +237,12 @@ class _HelicopterShotPainter extends CustomPainter {
         ],
         stops: const [0.0, 0.50, 1.0],
       ).createShader(
-        Rect.fromCircle(center: floodlightCenter, radius: s * 0.72),
+        Rect.fromCircle(center: circleCenter, radius: rx * 1.6),
       );
-    canvas.drawCircle(floodlightCenter, s * 0.72, floodlightPaint);
+    canvas.drawCircle(circleCenter, rx * 1.6, floodlightPaint);
 
     // ----------------------------------------------------
-    // 2. Pitch Crease & Timber Stumps
+    // 3. Pitch Crease & Timber Stumps
     // ----------------------------------------------------
     final groundPaint = Paint()
       ..color = borderColor.withValues(alpha: isDark ? 0.45 : 0.35)
@@ -243,13 +258,13 @@ class _HelicopterShotPainter extends CustomPainter {
 
     // Popping crease mark
     canvas.drawLine(
-      Offset(w * 0.34, groundY - s * 0.055),
-      Offset(w * 0.34, groundY + s * 0.025),
+      Offset(w * 0.30, groundY - s * 0.055),
+      Offset(w * 0.30, groundY + s * 0.025),
       groundPaint,
     );
 
     // Timber Stumps & Bails behind batsman
-    final stumpX = w * 0.165;
+    final stumpX = w * 0.14;
     final stumpHeight = s * 0.22;
     final stumpPaint = Paint()
       ..shader = LinearGradient(
@@ -288,150 +303,93 @@ class _HelicopterShotPainter extends CustomPainter {
     );
 
     // ----------------------------------------------------
-    // 3. Kinetic Phase Timings & Biomechanics
+    // 4. FRONT-ANGLE CIRCULAR LOADER RING (The Core Visual)
     // ----------------------------------------------------
-    // Phase 1: Yorker Delivery & Downswing (0.00 -> 0.25)
-    // Phase 2: Sweet Spot Impact Flash (0.25 -> 0.32)
-    // Phase 3: Bottom-Wrist Dig Out & Upward Whip (0.28 -> 0.38)
-    // Phase 4: Overhead 360° Helicopter Rotor Twirl (0.38 -> 0.68)
-    // Phase 5: Sixer Rocket Flight (0.25 -> 0.88)
-    // Phase 6: High Follow-through Poise & Reset (0.68 -> 1.00)
+    // Subtle ambient circular track
+    final trackPaint = Paint()
+      ..color = (isDark ? Colors.white : AppColors.primaryNavy).withValues(alpha: 0.12)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = math.max(1.0, s * 0.010);
+    canvas.drawOval(
+      Rect.fromCenter(center: circleCenter, width: rx * 2, height: ry * 2),
+      trackPaint,
+    );
 
-    final baseWrist = Offset(stanceX + s * 0.145, groundY - s * 0.30);
-    final batLength = s * 0.30;
-    final bladeWidth = math.max(3.0, s * 0.035);
-
-    // Exact hit angle: angle from wrist to impact point in the blockhole
-    final impactWrist = baseWrist + Offset(s * 0.015, s * 0.030);
-    final hitAngle = math.atan2(
-      impactPoint.dy - impactWrist.dy,
-      impactPoint.dx - impactWrist.dx,
-    ); // ~61° (1.07 rad)
-    final backliftAngle = -math.pi * 0.72; // -130°
-
-    double crouch = 0.0;
-    double leanX = 0.0;
-    Offset wrist;
+    // Continuous Circular Bat Angle Kinematics:
+    // Phase 1: 0.00 to 0.25 (Downswing accelerating into blockhole impact)
+    // Phase 2: 0.25 to 0.75 (THE 360° HELICOPTER WHIRL in the front circular loader!)
+    // Phase 3: 0.75 to 1.00 (High follow-through poise and settle back to backlift)
     double batAngle;
-    Offset batTip;
-    bool isOverheadTwirl = false;
-    double rotorProgress = 0.0;
-
-    final rotorCenter = Offset(stanceX + s * 0.12, groundY - s * 0.56);
-    final rx = s * 0.25;
-    final ry = s * 0.085;
-    const tiltRad = -10.0 * math.pi / 180.0;
+    double trailSweep;
 
     if (progress < 0.25) {
-      // Downswing from high backlift (-130°) to blockhole impact (+61°)
       final p = progress / 0.25;
-      final curved = p * p; // Gravitational acceleration
-      crouch = curved * (s * 0.030);
-      leanX = curved * (s * 0.015);
-      wrist = baseWrist + Offset(leanX, crouch);
-      batAngle = backliftAngle + curved * (hitAngle - backliftAngle);
-      batTip = wrist + Offset(math.cos(batAngle) * batLength, math.sin(batAngle) * batLength);
-    } else if (progress <= 0.28) {
-      // Impact moment! Bat meets dipping ball exactly at impact point
-      crouch = s * 0.030;
-      leanX = s * 0.015;
-      wrist = baseWrist + Offset(leanX, crouch);
-      batAngle = hitAngle;
-      batTip = impactPoint;
-    } else if (progress <= 0.38) {
-      // Dig out: bottom wrist flicks UP! Bat arcs from blockhole to vertical
-      final p = (progress - 0.28) / 0.10;
-      final curved = math.sin(p * math.pi / 2); // explosive upward snap
-      batAngle = hitAngle + curved * (-math.pi / 2 - hitAngle);
-      crouch = (1.0 - p) * (s * 0.030);
-      leanX = (1.0 - p) * (s * 0.015);
-      final wristLift = p * (s * 0.068);
-      wrist = baseWrist + Offset(leanX, crouch - wristLift);
-      batTip = wrist + Offset(math.cos(batAngle) * batLength, math.sin(batAngle) * batLength);
-    } else if (progress <= 0.68) {
-      // THE 360° OVERHEAD HELICOPTER ROTOR TWIRL!
-      // Bat blade whirls horizontally above the helmet
-      rotorProgress = (progress - 0.38) / 0.30;
-      isOverheadTwirl = true;
-      crouch = -math.sin(rotorProgress * math.pi) * (s * 0.015); // standing tall
-      leanX = 0.0;
-      wrist = baseWrist + Offset(-s * 0.008, -s * 0.068); // high hands near collar
-
-      final spinAngle = rotorProgress * 2 * math.pi;
-      final rad = spinAngle + tiltRad;
-      batTip = rotorCenter + Offset(math.cos(rad) * rx, math.sin(rad) * ry);
-      batAngle = math.atan2(batTip.dy - wrist.dy, batTip.dx - wrist.dx);
+      final curved = p * p; // Downswing gravitational acceleration
+      batAngle = backliftAngle + curved * (impactAngle - backliftAngle);
+      trailSweep = p * 0.32;
+    } else if (progress <= 0.75) {
+      final p = (progress - 0.25) / 0.50;
+      final curved = (1.0 - math.cos(p * math.pi)) / 2; // Smooth S-curve rotation
+      batAngle = impactAngle - curved * 2 * math.pi; // Full 360° counter-clockwise twirl!
+      trailSweep = 0.42;
     } else {
-      // Follow-through poise & smooth settle
-      final p = (progress - 0.68) / 0.32;
+      final p = (progress - 0.75) / 0.25;
       final curved = (1.0 - math.cos(p * math.pi)) / 2;
-      crouch = 0.0;
-      leanX = 0.0;
-      wrist = Offset.lerp(
-        baseWrist + Offset(-s * 0.008, -s * 0.068),
-        baseWrist,
-        curved,
-      )!;
-
-      final startTip = rotorCenter + Offset(math.cos(tiltRad) * rx, math.sin(tiltRad) * ry);
-      final endTip = baseWrist + Offset(math.cos(backliftAngle) * batLength, math.sin(backliftAngle) * batLength);
-      batTip = Offset.lerp(startTip, endTip, curved)!;
-      batAngle = math.atan2(batTip.dy - wrist.dy, batTip.dx - wrist.dx);
+      const startA = impactAngle - 2 * math.pi;
+      const targetA = backliftAngle - 2 * math.pi;
+      batAngle = ui.lerpDouble(startA, targetA, curved)!;
+      trailSweep = (1.0 - p) * 0.42;
     }
 
-    // ----------------------------------------------------
-    // 4. Overhead 3D Helicopter Rotor Disc (Phase 4)
-    // ----------------------------------------------------
-    if (isOverheadTwirl) {
-      // Luminous elliptical halo disc
-      final rotorHaloPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(1.0, s * 0.010)
-        ..color = primaryColor.withValues(alpha: 0.35);
+    // Active Glowing Speed Arc Trailing Behind Bat Tip (Circular Loading Spinner)
+    if (trailSweep > 0.02) {
+      const int numSteps = 38;
+      final arcPoints = <Offset>[];
+      final alphas = <double>[];
 
-      canvas.save();
-      canvas.translate(rotorCenter.dx, rotorCenter.dy);
-      canvas.rotate(tiltRad);
-      final localRect = Rect.fromCenter(
-        center: Offset.zero,
-        width: rx * 2,
-        height: ry * 2,
-      );
-      canvas.drawOval(localRect, rotorHaloPaint);
+      for (int i = 0; i < numSteps; i++) {
+        final subP = i / (numSteps - 1).toDouble();
+        final double subAngle;
+        if (progress < 0.25) {
+          subAngle = batAngle - subP * (trailSweep * 2 * math.pi);
+        } else {
+          subAngle = batAngle + subP * (trailSweep * 2 * math.pi);
+        }
+        arcPoints.add(circleCenter + Offset(math.cos(subAngle) * rx, math.sin(subAngle) * ry));
+        alphas.add(1.0 - subP);
+      }
 
-      // Core electric speed sweep arc following blade tip
-      final sweepAngle = rotorProgress * 2 * math.pi;
-      final rotorArcPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(2.0, s * 0.020)
-        ..strokeCap = StrokeCap.round
-        ..shader = ui.Gradient.sweep(
-          Offset.zero,
-          [
-            Colors.transparent,
-            primaryColor.withValues(alpha: 0.40),
-            accentGold.withValues(alpha: 0.85),
-            Colors.white,
-          ],
-          const [0.0, 0.40, 0.85, 1.0],
-          TileMode.clamp,
-          0.0,
-          sweepAngle,
-        );
-      canvas.drawArc(localRect, 0.0, sweepAngle, false, rotorArcPaint);
-      canvas.restore();
+      for (int i = 1; i < arcPoints.length; i++) {
+        final al = alphas[i];
+        final arcOuterPaint = Paint()
+          ..color = primaryColor.withValues(alpha: al * 0.85)
+          ..strokeWidth = math.max(2.4, s * 0.038)
+          ..strokeCap = StrokeCap.round;
+        canvas.drawLine(arcPoints[i - 1], arcPoints[i], arcOuterPaint);
 
-      // Blade-tip glowing spark ember
-      final emberCorePaint = Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.fill;
-      canvas.drawCircle(batTip, math.max(2.2, s * 0.022), emberCorePaint);
-      final emberGlowPaint = Paint()
-        ..color = primaryColor.withValues(alpha: 0.80)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(1.2, s * 0.014);
-      canvas.drawCircle(batTip, math.max(4.0, s * 0.040), emberGlowPaint);
+        final arcCorePaint = Paint()
+          ..color = Colors.white.withValues(alpha: al * 0.95)
+          ..strokeWidth = math.max(1.2, s * 0.018)
+          ..strokeCap = StrokeCap.round;
+        canvas.drawLine(arcPoints[i - 1], arcPoints[i], arcCorePaint);
+      }
     }
+
+    // Bat tip position on the circular loader ring
+    final tipPos = circleCenter + Offset(
+      math.cos(batAngle) * rx,
+      math.sin(batAngle) * ry,
+    );
+
+    // Leading-edge glowing spark ember at bat tip
+    final emberGlow = Paint()
+      ..color = primaryColor.withValues(alpha: 0.80)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = math.max(1.2, s * 0.014);
+    canvas.drawCircle(tipPos, math.max(4.0, s * 0.040), emberGlow);
+
+    final emberCore = Paint()..color = Colors.white..style = PaintingStyle.fill;
+    canvas.drawCircle(tipPos, math.max(2.2, s * 0.022), emberCore);
 
     // ----------------------------------------------------
     // 5. Clean, Professional Athletic Batsman Silhouette
@@ -452,6 +410,9 @@ class _HelicopterShotPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = math.max(0.8, s * 0.008);
 
+    // Dynamic athletic weight shift synchronized with swing
+    final crouch = math.sin(progress * 2 * math.pi) * (s * 0.015);
+    final leanX = math.cos(progress * 2 * math.pi) * (s * 0.010);
     final double stX = stanceX + leanX;
     final Offset hip = Offset(stX, groundY - s * 0.24 + crouch);
 
@@ -493,19 +454,19 @@ class _HelicopterShotPainter extends CustomPainter {
     final fHeel = Offset(stX + s * 0.176, groundY);
 
     final padPath = Path()
-      ..moveTo(fKnee.dx - s * 0.030, fKnee.dy - s * 0.054) // Top hat outer peak
-      ..lineTo(fKnee.dx + s * 0.046, fKnee.dy - s * 0.038) // Top hat inner
-      ..lineTo(fKnee.dx + s * 0.060, fKnee.dy + s * 0.015) // Molded knee roll
-      ..lineTo(fAnkle.dx + s * 0.054, groundY - s * 0.015) // Shin flare
-      ..lineTo(fToe.dx, fToe.dy)                           // Instep over shoe
-      ..lineTo(fHeel.dx, fHeel.dy)                         // Heel base
-      ..lineTo(fAnkle.dx - s * 0.030, groundY - s * 0.046) // Calf taper
-      ..lineTo(fKnee.dx - s * 0.038, fKnee.dy + s * 0.030) // Under knee roll
+      ..moveTo(fKnee.dx - s * 0.030, fKnee.dy - s * 0.054)
+      ..lineTo(fKnee.dx + s * 0.046, fKnee.dy - s * 0.038)
+      ..lineTo(fKnee.dx + s * 0.060, fKnee.dy + s * 0.015)
+      ..lineTo(fAnkle.dx + s * 0.054, groundY - s * 0.015)
+      ..lineTo(fToe.dx, fToe.dy)
+      ..lineTo(fHeel.dx, fHeel.dy)
+      ..lineTo(fAnkle.dx - s * 0.030, groundY - s * 0.046)
+      ..lineTo(fKnee.dx - s * 0.038, fKnee.dy + s * 0.030)
       ..close();
     canvas.drawPath(padPath, padPaint);
     canvas.drawPath(padPath, padBorderPaint);
 
-    // Batting Pad Knee Roll & Straps (Athletic Vermilion Accents)
+    // Batting Pad Knee Roll & Straps
     final padStrapPaint = Paint()
       ..color = primaryColor
       ..strokeWidth = math.max(1.2, s * 0.012)
@@ -531,7 +492,6 @@ class _HelicopterShotPainter extends CustomPainter {
     final shoeSolePaint = Paint()..color = primaryColor..style = PaintingStyle.fill;
     final shoeBodyPaint = Paint()..color = Colors.white..style = PaintingStyle.fill;
 
-    // Back shoe
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTRB(bHeel.dx - 1.5, groundY - s * 0.020, bToe.dx + 1.5, groundY),
@@ -543,8 +503,6 @@ class _HelicopterShotPainter extends CustomPainter {
       Rect.fromLTRB(bHeel.dx - 1.5, groundY - s * 0.008, bToe.dx + 1.5, groundY),
       shoeSolePaint,
     );
-
-    // Front shoe
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTRB(fHeel.dx - 1.5, groundY - s * 0.020, fToe.dx + 1.5, groundY),
@@ -631,28 +589,34 @@ class _HelicopterShotPainter extends CustomPainter {
       grillePaint,
     );
 
-    // F. Articulated Arms Connected to Moving Wrists
+    // F. Wrists at Center of Circular Loader & Articulated Arms
+    final wrist = circleCenter + Offset(
+      math.cos(batAngle) * (s * 0.035),
+      math.sin(batAngle) * (s * 0.035),
+    );
+
     final armPaint = Paint()
       ..color = jerseyColor
       ..strokeWidth = math.max(2.8, s * 0.025)
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawLine(shoulderL, wrist - Offset(s * 0.015, s * 0.015), armPaint);
+    canvas.drawLine(shoulderL, wrist - Offset(s * 0.012, s * 0.012), armPaint);
     canvas.drawLine(shoulderR, wrist, armPaint);
 
-    // Batting Gloves (Two-tone molded sausage-finger gloves clutching handle)
+    // Batting Gloves (Two-tone molded gloves clutching handle)
     final gloveOuterPaint = Paint()..color = primaryColor..style = PaintingStyle.fill;
     final gloveInnerPaint = Paint()..color = padColor..style = PaintingStyle.fill;
     final gloveCuffPaint = Paint()..color = Colors.white..style = PaintingStyle.fill;
 
-    canvas.drawCircle(wrist - Offset(s * 0.012, s * 0.012), math.max(2.2, s * 0.020), gloveOuterPaint);
+    canvas.drawCircle(wrist - Offset(s * 0.010, s * 0.010), math.max(2.2, s * 0.020), gloveOuterPaint);
     canvas.drawCircle(wrist + Offset(s * 0.008, s * 0.008), math.max(2.0, s * 0.018), gloveInnerPaint);
     canvas.drawCircle(wrist, math.max(1.0, s * 0.008), gloveCuffPaint);
 
     // ----------------------------------------------------
     // 6. The Detailed Cricket Bat
     // ----------------------------------------------------
-    final gripLength = batLength * 0.16;
+    final bladeWidth = math.max(3.2, s * 0.036);
+    final gripLength = s * 0.045;
     final gripTop = wrist - Offset(math.cos(batAngle) * gripLength, math.sin(batAngle) * gripLength);
     final gripBottom = wrist + Offset(math.cos(batAngle) * gripLength, math.sin(batAngle) * gripLength);
 
@@ -668,7 +632,7 @@ class _HelicopterShotPainter extends CustomPainter {
       ..color = const Color(0xFFD97706)
       ..strokeWidth = bladeWidth
       ..strokeCap = StrokeCap.round;
-    canvas.drawLine(gripBottom, batTip, bladePaint);
+    canvas.drawLine(gripBottom, tipPos, bladePaint);
 
     // C. Bat Brand Crest (Kreeda Vermilion Badge)
     final stickerPaint = Paint()
@@ -676,16 +640,16 @@ class _HelicopterShotPainter extends CustomPainter {
       ..strokeWidth = math.max(1.5, bladeWidth * 0.70)
       ..strokeCap = StrokeCap.round;
 
-    final stickerStart = gripBottom + (batTip - gripBottom) * 0.22;
-    final stickerEnd = gripBottom + (batTip - gripBottom) * 0.70;
+    final stickerStart = gripBottom + (tipPos - gripBottom) * 0.22;
+    final stickerEnd = gripBottom + (tipPos - gripBottom) * 0.70;
     canvas.drawLine(stickerStart, stickerEnd, stickerPaint);
 
     // ----------------------------------------------------
-    // 7. Sweet-Spot Impact Flash & Sparks (Phase 2)
+    // 7. Sweet-Spot Impact Flash & Sparks (0.23 to 0.33)
     // ----------------------------------------------------
-    if (progress >= 0.24 && progress <= 0.32) {
-      final ip = (progress - 0.24) / 0.08;
-      final shockwaveRadius = ip * (s * 0.22) + s * 0.02;
+    if (progress >= 0.23 && progress <= 0.33) {
+      final ip = (progress - 0.23) / 0.10;
+      final shockwaveRadius = ip * (s * 0.24) + s * 0.02;
       final shockwaveAlpha = (1.0 - ip).clamp(0.0, 1.0);
 
       // Primary Energy Orange Sonic Ring
@@ -734,19 +698,20 @@ class _HelicopterShotPainter extends CustomPainter {
     // ----------------------------------------------------
     Offset? ballPos;
     if (progress < 0.25) {
-      // Yorker dips sharply into the blockhole
+      // Fast dipping yorker into the blockhole
       final p = progress / 0.25;
-      final curved = p * p; // Gravitational drop
+      final curved = p * p;
       final startPos = Offset(w * 0.95, h * 0.16);
       ballPos = Offset(
         ui.lerpDouble(startPos.dx, impactPoint.dx, p)!,
         ui.lerpDouble(startPos.dy, impactPoint.dy, curved)!,
       );
-    } else if (progress <= 0.28) {
+    } else if (progress <= 0.27) {
+      // Direct impact!
       ballPos = impactPoint;
-    } else if (progress <= 0.88) {
-      // Rocketing sixer launched skyward
-      final p = (progress - 0.28) / 0.60;
+    } else if (progress <= 0.85) {
+      // Rocketing sixer soaring into the stadium sky!
+      final p = (progress - 0.27) / 0.58;
       final curved = math.sin(p * math.pi / 2);
       final targetPos = Offset(w * 1.15, h * 0.04);
       ballPos = Offset(
