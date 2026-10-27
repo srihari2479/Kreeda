@@ -403,30 +403,32 @@ class _HelicopterShotPainter extends CustomPainter {
     final double stX = stanceX + leanX;
     final Offset hip = Offset(stX, groundY - s * 0.24 + crouch);
 
-    // A. Muscular Athletic Back Leg (Firm anchor braced against shot torque)
-    final thighBack = Offset(hip.dx - s * 0.020, hip.dy + s * 0.010);
+    // A. Muscular Athletic Back Leg with Power Heel Lift & Flexed Spikes
+    final thighTop = Offset(hip.dx - s * 0.025, hip.dy + s * 0.005);
     final hamstring = Offset(stX - s * 0.070, hip.dy + s * 0.060);
-    final kneeBack = Offset(stX - s * 0.110, groundY - s * 0.115 + crouch * 0.4);
-    final calfBack = Offset(stX - s * 0.160, groundY - s * 0.065);
-    final ankleBack = Offset(stX - s * 0.190, groundY - s * 0.022);
-    final bHeel = Offset(stX - s * 0.215, groundY);
-    final bToe = Offset(stX - s * 0.135, groundY);
-    final instep = Offset(stX - s * 0.145, groundY - s * 0.022);
-    final shinFront = Offset(stX - s * 0.115, groundY - s * 0.065);
-    final kneeFront = Offset(stX - s * 0.075, groundY - s * 0.115 + crouch * 0.4);
-    final quadFront = Offset(stX - s * 0.035, hip.dy + s * 0.070);
+    final kneeFold = Offset(stX - s * 0.095, groundY - s * 0.095 + crouch * 0.4);
+    final calfCurve = Offset(stX - s * 0.145, groundY - s * 0.055);
+    final ankleBack = Offset(stX - s * 0.170, groundY - s * 0.035);
+    final heelLifted = Offset(stX - s * 0.188, groundY - s * 0.028);
+    final toeBall = Offset(stX - s * 0.160, groundY);
+    final toeTip = Offset(stX - s * 0.138, groundY);
+    final instep = Offset(stX - s * 0.145, groundY - s * 0.025);
+    final shinMid = Offset(stX - s * 0.105, groundY - s * 0.055);
+    final kneeFront = Offset(stX - s * 0.055, groundY - s * 0.090 + crouch * 0.4);
+    final quadFront = Offset(stX - s * 0.020, hip.dy + s * 0.070);
     final thighFront = Offset(hip.dx + s * 0.015, hip.dy + s * 0.025);
 
     final backLegPath = Path()
-      ..moveTo(thighBack.dx, thighBack.dy)
+      ..moveTo(thighTop.dx, thighTop.dy)
       ..lineTo(hamstring.dx, hamstring.dy)
-      ..lineTo(kneeBack.dx, kneeBack.dy)
-      ..lineTo(calfBack.dx, calfBack.dy)
+      ..lineTo(kneeFold.dx, kneeFold.dy)
+      ..lineTo(calfCurve.dx, calfCurve.dy)
       ..lineTo(ankleBack.dx, ankleBack.dy)
-      ..lineTo(bHeel.dx, bHeel.dy)
-      ..lineTo(bToe.dx, bToe.dy)
+      ..lineTo(heelLifted.dx, heelLifted.dy)
+      ..lineTo(toeBall.dx, toeBall.dy)
+      ..lineTo(toeTip.dx, toeTip.dy)
       ..lineTo(instep.dx, instep.dy)
-      ..lineTo(shinFront.dx, shinFront.dy)
+      ..lineTo(shinMid.dx, shinMid.dy)
       ..lineTo(kneeFront.dx, kneeFront.dy)
       ..lineTo(quadFront.dx, quadFront.dy)
       ..lineTo(thighFront.dx, thighFront.dy)
@@ -438,7 +440,7 @@ class _HelicopterShotPainter extends CustomPainter {
       ..color = (isDark ? const Color(0xFFCBD5E1) : const Color(0xFF94A3B8)).withValues(alpha: 0.50)
       ..strokeWidth = math.max(1.0, s * 0.009)
       ..strokeCap = StrokeCap.round;
-    canvas.drawLine(kneeBack, kneeFront, legCreasePaint);
+    canvas.drawLine(kneeFold, kneeFront, legCreasePaint);
 
     // B. Front Leg Lunging Thigh
     final fKnee = Offset(stX + s * 0.145, groundY - s * 0.145 + crouch * 0.6);
@@ -496,17 +498,24 @@ class _HelicopterShotPainter extends CustomPainter {
     final shoeSolePaint = Paint()..color = primaryColor..style = PaintingStyle.fill;
     final shoeBodyPaint = Paint()..color = Colors.white..style = PaintingStyle.fill;
 
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTRB(bHeel.dx - 1.5, groundY - s * 0.020, bToe.dx + 1.5, groundY),
-        Radius.circular(s * 0.006),
-      ),
-      shoeBodyPaint,
-    );
-    canvas.drawRect(
-      Rect.fromLTRB(bHeel.dx - 1.5, groundY - s * 0.008, bToe.dx + 1.5, groundY),
-      shoeSolePaint,
-    );
+    // Rear Athletic Spiked Shoe (Elevated Heel with Flexed Toe Spikes)
+    final rearShoePath = Path()
+      ..moveTo(heelLifted.dx, heelLifted.dy)
+      ..lineTo(toeBall.dx, toeBall.dy)
+      ..lineTo(toeTip.dx, toeTip.dy)
+      ..lineTo(toeTip.dx, toeTip.dy - s * 0.016)
+      ..lineTo(heelLifted.dx, heelLifted.dy - s * 0.014)
+      ..close();
+    canvas.drawPath(rearShoePath, shoeBodyPaint);
+
+    // Orange cleat spike sole gripping turf at angle
+    final rearSpikePaint = Paint()
+      ..color = primaryColor
+      ..strokeWidth = math.max(2.0, s * 0.015)
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(heelLifted, toeBall, rearSpikePaint);
+
+    // Front Athletic Cricket Shoe (Planted firmly on popping crease)
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTRB(fHeel.dx - 1.5, groundY - s * 0.020, fToe.dx + 1.5, groundY),
