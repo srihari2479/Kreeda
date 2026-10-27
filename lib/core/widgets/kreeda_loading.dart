@@ -386,6 +386,8 @@ class _HelicopterShotPainter extends CustomPainter {
     final skinColor = isDark ? const Color(0xFFE2E8F0) : const Color(0xFFCBD5E1);
     final padColor = Colors.white;
     final padBorderColor = isDark ? const Color(0xFFCBD5E1) : const Color(0xFF94A3B8);
+    final caneSeamColor = isDark ? const Color(0xFFE2E8F0) : const Color(0xFFCBD5E1);
+    final calfTrouserColor = isDark ? const Color(0xFFCBD5E1) : const Color(0xFF94A3B8);
 
     final pantPaint = Paint()..color = pantColor..style = PaintingStyle.fill;
     final jerseyPaint = Paint()..color = jerseyColor..style = PaintingStyle.fill;
@@ -396,9 +398,19 @@ class _HelicopterShotPainter extends CustomPainter {
       ..color = padBorderColor.withValues(alpha: 0.50)
       ..style = PaintingStyle.stroke
       ..strokeWidth = math.max(0.8, s * 0.008);
-    final padStrapPaint = Paint()
+    final caneSeamPaint = Paint()
+      ..color = caneSeamColor
+      ..strokeWidth = math.max(0.8, s * 0.007)
+      ..strokeCap = StrokeCap.round;
+    final wingPipingPaint = Paint()
       ..color = primaryColor
-      ..strokeWidth = math.max(1.2, s * 0.012)
+      ..strokeWidth = math.max(1.4, s * 0.011)
+      ..strokeCap = StrokeCap.round;
+    final calfTrouserPaint = Paint()..color = calfTrouserColor..style = PaintingStyle.fill;
+    final shoeBodyPaint = Paint()..color = Colors.white..style = PaintingStyle.fill;
+    final shoeOutsolePaint = Paint()
+      ..color = primaryColor
+      ..strokeWidth = math.max(1.8, s * 0.014)
       ..strokeCap = StrokeCap.round;
 
     // Dynamic athletic weight shift synchronized with swing
@@ -407,7 +419,7 @@ class _HelicopterShotPainter extends CustomPainter {
     final double stX = stanceX + leanX;
     final Offset hip = Offset(stX, groundY - s * 0.24 + crouch);
 
-    // A. Muscular Athletic Back Leg with Power Heel Lift & Batting Pad
+    // A. Muscular Athletic Back Leg with Power Heel Lift & Master Batting Pad
     final thighTop = Offset(hip.dx - s * 0.025, hip.dy + s * 0.005);
     final hamstring = Offset(stX - s * 0.070, hip.dy + s * 0.060);
     final kneeFold = Offset(stX - s * 0.095, groundY - s * 0.095 + crouch * 0.4);
@@ -429,33 +441,59 @@ class _HelicopterShotPainter extends CustomPainter {
       ..close();
     canvas.drawPath(backThighPath, pantPaint);
 
+    // Rear Spiked Athletic Shoe (Elevated Heel with Flexed Toe Spikes)
+    final rearShoePath = Path()
+      ..moveTo(heelLifted.dx - 1.0, heelLifted.dy + 1.0)
+      ..lineTo(toeBall.dx - s * 0.005, toeBall.dy)
+      ..lineTo(toeTip.dx + 1.0, toeTip.dy)
+      ..lineTo(toeTip.dx + 1.0, toeTip.dy - s * 0.014)
+      ..lineTo(heelLifted.dx + s * 0.012, heelLifted.dy - s * 0.014)
+      ..close();
+    canvas.drawPath(rearShoePath, shoeBodyPaint);
+    canvas.drawLine(
+      Offset(heelLifted.dx - 1.0, heelLifted.dy + 1.0),
+      toeBall,
+      shoeOutsolePaint,
+    );
+
     // Rear Cricket Batting Pad (Contoured with arched instep notch above shoe)
     final rearPadPath = Path()
-      ..moveTo(kneeFold.dx - s * 0.010, kneeFold.dy - s * 0.025)
-      ..lineTo(kneeFront.dx + s * 0.012, kneeFront.dy - s * 0.020)
-      ..lineTo(kneeFront.dx + s * 0.015, kneeFront.dy + s * 0.008)
-      ..lineTo(toeTip.dx + s * 0.005, groundY - s * 0.022)
-      ..lineTo(toeBall.dx + s * 0.005, groundY - s * 0.026)
-      ..lineTo(heelLifted.dx - s * 0.005, groundY - s * 0.022)
-      ..lineTo(kneeFold.dx - s * 0.015, kneeFold.dy + s * 0.008)
+      ..moveTo(kneeFold.dx - s * 0.006, kneeFold.dy - s * 0.024)
+      ..lineTo(kneeFront.dx + s * 0.008, kneeFront.dy - s * 0.020)
+      ..lineTo(kneeFront.dx + s * 0.012, kneeFront.dy + s * 0.006)
+      ..lineTo(toeTip.dx + s * 0.006, groundY - s * 0.020)
+      ..lineTo(toeBall.dx + s * 0.004, groundY - s * 0.025)
+      ..lineTo(heelLifted.dx + s * 0.006, groundY - s * 0.020)
+      ..lineTo(kneeFold.dx - s * 0.010, kneeFold.dy + s * 0.006)
       ..close();
     canvas.drawPath(rearPadPath, padPaint);
     canvas.drawPath(rearPadPath, padBorderPaint);
 
-    // Rear Pad Straps
+    // Rear Knee Roll Cushion Seams
     canvas.drawLine(
-      Offset(kneeFold.dx - s * 0.008, kneeFold.dy),
-      Offset(kneeFront.dx + s * 0.010, kneeFront.dy),
-      padStrapPaint,
+      Offset(kneeFold.dx - s * 0.006, kneeFold.dy - s * 0.006),
+      Offset(kneeFront.dx + s * 0.008, kneeFront.dy - s * 0.006),
+      caneSeamPaint,
     );
     canvas.drawLine(
-      Offset(stX - s * 0.138, groundY - s * 0.055),
-      Offset(stX - s * 0.092, groundY - s * 0.055),
-      padStrapPaint,
+      Offset(kneeFold.dx - s * 0.008, kneeFold.dy + s * 0.006),
+      Offset(kneeFront.dx + s * 0.010, kneeFront.dy + s * 0.006),
+      caneSeamPaint,
+    );
+    // Rear Cane Center Rib
+    canvas.drawLine(
+      Offset((kneeFold.dx + kneeFront.dx) / 2, kneeFold.dy + s * 0.008),
+      Offset(toeBall.dx + s * 0.006, groundY - s * 0.024),
+      caneSeamPaint,
     );
 
-    // B. Front Leg Lunging Thigh
+    // B. Front Leg Lunging Thigh & Calf
     final fKnee = Offset(stX + s * 0.145, groundY - s * 0.145 + crouch * 0.6);
+    final fAnkle = Offset(stX + s * 0.220, groundY - s * 0.028);
+    final fToe = Offset(stX + s * 0.295, groundY);
+    final fHeel = Offset(stX + s * 0.170, groundY);
+
+    // Front thigh trousers
     final frontThighPath = Path()
       ..moveTo(hip.dx + s * 0.024, hip.dy + s * 0.008)
       ..lineTo(stX + s * 0.084, hip.dy + s * 0.030)
@@ -466,72 +504,94 @@ class _HelicopterShotPainter extends CustomPainter {
       ..close();
     canvas.drawPath(frontThighPath, pantPaint);
 
-    // C. Contoured Professional Cricket Batting Pad (Arched instep sits cleanly above shoe)
-    final fToe = Offset(stX + s * 0.290, groundY);
-    final fHeel = Offset(stX + s * 0.176, groundY);
+    // Front Calf Trousers (Anatomical leg visible behind the strapped pad)
+    final frontCalfPath = Path()
+      ..moveTo(fKnee.dx - s * 0.030, fKnee.dy)
+      ..lineTo(fKnee.dx - s * 0.010, fKnee.dy + s * 0.050)
+      ..lineTo(fHeel.dx + s * 0.015, groundY - s * 0.025)
+      ..lineTo(fHeel.dx - s * 0.005, groundY - s * 0.020)
+      ..lineTo(fKnee.dx - s * 0.040, fKnee.dy + s * 0.030)
+      ..close();
+    canvas.drawPath(frontCalfPath, calfTrouserPaint);
 
+    // Front Athletic Cricket Shoe (Planted firmly on popping crease with cleat spikes)
+    final frontShoePath = Path()
+      ..moveTo(fHeel.dx - s * 0.005, groundY - s * 0.016)
+      ..lineTo(fAnkle.dx - s * 0.005, groundY - s * 0.018)
+      ..lineTo(fAnkle.dx + s * 0.030, groundY - s * 0.014)
+      ..lineTo(fToe.dx - s * 0.005, groundY - s * 0.012)
+      ..lineTo(fToe.dx + s * 0.006, groundY - s * 0.004)
+      ..lineTo(fToe.dx, groundY)
+      ..lineTo(fHeel.dx, groundY)
+      ..lineTo(fHeel.dx - s * 0.006, groundY - s * 0.008)
+      ..close();
+    canvas.drawPath(frontShoePath, shoeBodyPaint);
+    canvas.drawLine(
+      Offset(fHeel.dx, groundY - 0.8),
+      Offset(fToe.dx, groundY - 0.8),
+      shoeOutsolePaint,
+    );
+
+    // C. Masterclass Professional Cricket Batting Pad
+    // Seamless contoured silhouette
     final padPath = Path()
-      ..moveTo(fKnee.dx - s * 0.022, fKnee.dy - s * 0.050)
-      ..lineTo(fKnee.dx + s * 0.036, fKnee.dy - s * 0.040)
-      ..lineTo(fKnee.dx + s * 0.042, fKnee.dy + s * 0.010)
-      ..lineTo(fToe.dx - s * 0.010, groundY - s * 0.025)
-      ..lineTo(fHeel.dx + s * 0.015, groundY - s * 0.028)
-      ..lineTo(fHeel.dx - s * 0.005, groundY - s * 0.022)
-      ..lineTo(fKnee.dx - s * 0.028, fKnee.dy + s * 0.010)
+      ..moveTo(fKnee.dx - s * 0.012, fKnee.dy - s * 0.044) // Top-hat back curve
+      ..lineTo(fKnee.dx + s * 0.026, fKnee.dy - s * 0.040) // Top-hat front apex
+      ..lineTo(fKnee.dx + s * 0.036, fKnee.dy - s * 0.012) // Upper knee roll apex
+      ..lineTo(fKnee.dx + s * 0.038, fKnee.dy + s * 0.012) // Lower knee roll apex
+      ..lineTo(fAnkle.dx + s * 0.036, groundY - s * 0.026) // Outer wing lower taper
+      ..lineTo(fAnkle.dx + s * 0.014, groundY - s * 0.020) // Instep front notch
+      ..lineTo(fAnkle.dx - s * 0.014, groundY - s * 0.020) // Instep back notch (arched over shoe tongue)
+      ..lineTo(fKnee.dx - s * 0.016, fKnee.dy + s * 0.012) // Inner shin top
+      ..lineTo(fKnee.dx - s * 0.018, fKnee.dy - s * 0.012) // Inner knee roll back
       ..close();
     canvas.drawPath(padPath, padPaint);
     canvas.drawPath(padPath, padBorderPaint);
 
-    // Front Batting Pad Knee Roll & Straps
+    // Cushioned Knee Roll Triple-Bolster (Subtle quilted seams)
     canvas.drawLine(
-      Offset(fKnee.dx - s * 0.020, fKnee.dy - s * 0.005),
-      Offset(fKnee.dx + s * 0.036, fKnee.dy + s * 0.005),
-      padStrapPaint,
+      Offset(fKnee.dx - s * 0.016, fKnee.dy - s * 0.012),
+      Offset(fKnee.dx + s * 0.036, fKnee.dy - s * 0.012),
+      caneSeamPaint,
     );
     canvas.drawLine(
-      Offset(fKnee.dx - s * 0.018, fKnee.dy + s * 0.020),
-      Offset(fKnee.dx + s * 0.038, fKnee.dy + s * 0.028),
-      padStrapPaint,
-    );
-    canvas.drawLine(
-      Offset(fHeel.dx + s * 0.005, groundY - s * 0.060),
-      Offset(fToe.dx - s * 0.020, groundY - s * 0.055),
-      padStrapPaint,
+      Offset(fKnee.dx - s * 0.014, fKnee.dy + s * 0.012),
+      Offset(fKnee.dx + s * 0.038, fKnee.dy + s * 0.012),
+      caneSeamPaint,
     );
 
-    // Spiked Athletic Shoes
-    final shoeSolePaint = Paint()..color = primaryColor..style = PaintingStyle.fill;
-    final shoeBodyPaint = Paint()..color = Colors.white..style = PaintingStyle.fill;
+    // 3 Authentic Vertical Cane Ribs (Embossed cane channels running down front shin)
+    for (final offset in [-0.003, 0.010, 0.023]) {
+      canvas.drawLine(
+        Offset(fKnee.dx + s * offset, fKnee.dy + s * 0.015),
+        Offset(fAnkle.dx + s * (offset * 0.85), groundY - s * 0.022),
+        caneSeamPaint,
+      );
+    }
 
-    // Rear Athletic Spiked Shoe (Elevated Heel with Flexed Toe Spikes)
-    final rearShoePath = Path()
-      ..moveTo(heelLifted.dx, heelLifted.dy)
-      ..lineTo(toeBall.dx, toeBall.dy)
-      ..lineTo(toeTip.dx, toeTip.dy)
-      ..lineTo(toeTip.dx, toeTip.dy - s * 0.016)
-      ..lineTo(heelLifted.dx, heelLifted.dy - s * 0.014)
+    // Aerodynamic Outer Wing Piping (Modern limited-overs brand stripe)
+    canvas.drawLine(
+      Offset(fKnee.dx + s * 0.034, fKnee.dy - s * 0.030),
+      Offset(fKnee.dx + s * 0.037, fKnee.dy + s * 0.008),
+      wingPipingPaint,
+    );
+    canvas.drawLine(
+      Offset(fKnee.dx + s * 0.037, fKnee.dy + s * 0.008),
+      Offset(fAnkle.dx + s * 0.034, groundY - s * 0.027),
+      wingPipingPaint,
+    );
+
+    // Kreeda Brand Diamond Crest on Knee Bolster
+    final kCx = fKnee.dx + s * 0.010;
+    final kCy = fKnee.dy;
+    final crestSize = math.max(2.0, s * 0.012);
+    final crestPath = Path()
+      ..moveTo(kCx, kCy - crestSize)
+      ..lineTo(kCx + crestSize, kCy)
+      ..lineTo(kCx, kCy + crestSize)
+      ..lineTo(kCx - crestSize, kCy)
       ..close();
-    canvas.drawPath(rearShoePath, shoeBodyPaint);
-
-    // Orange cleat spike sole gripping turf at angle
-    final rearSpikePaint = Paint()
-      ..color = primaryColor
-      ..strokeWidth = math.max(2.0, s * 0.015)
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(heelLifted, toeBall, rearSpikePaint);
-
-    // Front Athletic Cricket Shoe (Planted firmly on popping crease)
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTRB(fHeel.dx - 1.5, groundY - s * 0.020, fToe.dx + 1.5, groundY),
-        Radius.circular(s * 0.006),
-      ),
-      shoeBodyPaint,
-    );
-    canvas.drawRect(
-      Rect.fromLTRB(fHeel.dx - 1.5, groundY - s * 0.008, fToe.dx + 1.5, groundY),
-      shoeSolePaint,
-    );
+    canvas.drawPath(crestPath, accentPaint);
 
     // D. Athletic Torso & Team Jersey
     final waist = Offset(stX + s * 0.015, hip.dy - s * 0.015);
