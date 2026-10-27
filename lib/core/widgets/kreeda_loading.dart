@@ -223,7 +223,7 @@ class _HelicopterShotPainter extends CustomPainter {
       math.cos(impactAngle) * rx,
       math.sin(impactAngle) * ry,
     );
-    const double backliftAngle = -math.pi * 0.72; // -130°
+    const double backliftAngle = 225.0 * math.pi / 180.0; // 225° (top-left behind batsman)
 
     // ----------------------------------------------------
     // 2. Stadium Ambient Floodlight Glow
@@ -315,8 +315,8 @@ class _HelicopterShotPainter extends CustomPainter {
       trackPaint,
     );
 
-    // Continuous Circular Bat Angle Kinematics:
-    // Phase 1: 0.00 to 0.25 (Downswing accelerating into blockhole impact)
+    // Continuous Circular Bat Angle Kinematics (Unified Counter-Clockwise Rotation):
+    // Phase 1: 0.00 to 0.25 (Ball arrives, bat downswings behind body & along turf into blockhole impact)
     // Phase 2: 0.25 to 0.75 (THE 360° HELICOPTER WHIRL in the front circular loader!)
     // Phase 3: 0.75 to 1.00 (High follow-through poise and settle back to backlift)
     double batAngle;
@@ -325,8 +325,9 @@ class _HelicopterShotPainter extends CustomPainter {
     if (progress < 0.25) {
       final p = progress / 0.25;
       final curved = p * p; // Downswing gravitational acceleration
-      batAngle = backliftAngle + curved * (impactAngle - backliftAngle);
-      trailSweep = p * 0.32;
+      const delta = impactAngle - backliftAngle; // -160° (counter-clockwise sweep into ball)
+      batAngle = backliftAngle + curved * delta;
+      trailSweep = p * 0.35;
     } else if (progress <= 0.75) {
       final p = (progress - 0.25) / 0.50;
       final curved = (1.0 - math.cos(p * math.pi)) / 2; // Smooth S-curve rotation
@@ -336,7 +337,7 @@ class _HelicopterShotPainter extends CustomPainter {
       final p = (progress - 0.75) / 0.25;
       final curved = (1.0 - math.cos(p * math.pi)) / 2;
       const startA = impactAngle - 2 * math.pi;
-      const targetA = backliftAngle - 2 * math.pi;
+      const targetA = backliftAngle - 4 * math.pi; // Continue counter-clockwise into next backlift!
       batAngle = ui.lerpDouble(startA, targetA, curved)!;
       trailSweep = (1.0 - p) * 0.42;
     }
@@ -349,12 +350,8 @@ class _HelicopterShotPainter extends CustomPainter {
 
       for (int i = 0; i < numSteps; i++) {
         final subP = i / (numSteps - 1).toDouble();
-        final double subAngle;
-        if (progress < 0.25) {
-          subAngle = batAngle - subP * (trailSweep * 2 * math.pi);
-        } else {
-          subAngle = batAngle + subP * (trailSweep * 2 * math.pi);
-        }
+        // Bat always rotates counter-clockwise (decreasing angle), so trail is in positive direction
+        final subAngle = batAngle + subP * (trailSweep * 2 * math.pi);
         arcPoints.add(circleCenter + Offset(math.cos(subAngle) * rx, math.sin(subAngle) * ry));
         alphas.add(1.0 - subP);
       }
