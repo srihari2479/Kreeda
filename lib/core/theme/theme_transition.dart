@@ -140,6 +140,9 @@ class ThemeTransitionWrapperState extends State<ThemeTransitionWrapper>
 
   Future<void> _waitForFrame() async {
     try {
+      if (!WidgetsBinding.instance.hasScheduledFrame) {
+        WidgetsBinding.instance.scheduleFrame();
+      }
       await WidgetsBinding.instance.endOfFrame.timeout(
         const Duration(milliseconds: 100),
         onTimeout: () => Future.value(),
@@ -165,19 +168,39 @@ class ThemeTransitionWrapperState extends State<ThemeTransitionWrapper>
       final boundary = _repaintBoundaryKey.currentContext?.findRenderObject()
           as RenderRepaintBoundary?;
 
-      if (boundary == null) {
+      if (boundary == null || !boundary.attached) {
         themeNotifier.setThemeMode(targetMode);
         ThemeTransition.isNavDarkNotifier.value = targetMode == ThemeMode.dark;
         return;
       }
 
-      // If boundary is marked dirty for layout/paint, wait for the pending frame to paint
-      if (boundary.debugNeedsPaint) {
+      // If boundary does not have layout or size yet, wait for pending frame
+      if (!boundary.hasSize || boundary.size.isEmpty) {
         await _waitForFrame();
       }
 
+      // In debug mode only: if boundary is marked dirty for layout/paint, wait for pending frame
+      // to avoid assert(!debugNeedsPaint) inside boundary.toImage().
+      // In release mode: assert is stripped by the compiler so boundary.debugNeedsPaint (which throws
+      // LateInitializationError outside asserts in Flutter) is NEVER called.
+      bool needsPaint = false;
+      assert(() {
+        needsPaint = boundary.debugNeedsPaint;
+        return true;
+      }());
+      if (needsPaint) {
+        await _waitForFrame();
+      }
+
+      if (!mounted) {
+        themeNotifier.setThemeMode(targetMode);
+        ThemeTransition.isNavDarkNotifier.value = targetMode == ThemeMode.dark;
+        return;
+      }
+
       ui.Image? capturedImage;
-      final effectivePixelRatio = math.max(1.0, pixelRatio);
+      // Clamp effectivePixelRatio to max 2.0 to ensure lightning-fast capture and zero GPU memory pressure
+      final effectivePixelRatio = math.max(1.0, math.min(2.0, pixelRatio));
 
       try {
         capturedImage =
@@ -186,8 +209,10 @@ class ThemeTransitionWrapperState extends State<ThemeTransitionWrapper>
         // Retry once after frame completes
         try {
           await _waitForFrame();
-          capturedImage =
-              await boundary.toImage(pixelRatio: effectivePixelRatio);
+          if (boundary.attached && boundary.hasSize && !boundary.size.isEmpty) {
+            capturedImage =
+                await boundary.toImage(pixelRatio: effectivePixelRatio);
+          }
         } catch (_) {
           capturedImage = null;
         }
@@ -211,11 +236,12 @@ class ThemeTransitionWrapperState extends State<ThemeTransitionWrapper>
               WidgetsBinding.instance.platformDispatcher.platformBrightness ==
                   Brightness.dark);
 
+      final oldSnapshot = _snapshot;
       setState(() {
-        _snapshot?.dispose();
         _snapshot = capturedImage;
         _origin = origin;
       });
+      oldSnapshot?.dispose();
 
       // Ensure snapshot is mounted and painted on screen
       await _waitForFrame();
@@ -259,11 +285,13 @@ class ThemeTransitionWrapperState extends State<ThemeTransitionWrapper>
     ThemeTransition.isAnimating = false;
     ThemeTransition.lastPointerPosition = null;
     if (!mounted) return;
-    setState(() {
-      _snapshot?.dispose();
-      _snapshot = null;
-    });
+    final oldSnapshot = _snapshot;
+    _snapshot = null;
+    setState(() {});
     _controller.reset();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      oldSnapshot?.dispose();
+    });
   }
 
   @override

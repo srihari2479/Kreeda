@@ -355,6 +355,42 @@ void main() {
     expect(ThemeTransition.isNavDarkNotifier.value, false);
   });
 
+  testWidgets('ThemeTransition executes release-safe circular reveal without debugNeedsPaint late error', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(360 * 3, 780 * 3);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(() => tester.view.resetPhysicalSize());
+
+    themeNotifier.setThemeMode(ThemeMode.light);
+    ThemeTransition.isNavDarkNotifier.value = false;
+
+    await tester.pumpWidget(const KreedaApp());
+    await tester.pumpAndSettle();
+
+    final state = ThemeTransition.wrapperKey.currentState;
+    expect(state, isNotNull);
+
+    // Trigger programmatic transition directly to dark mode (as happens on tap)
+    final transitionFuture = state!.animateThemeChange(ThemeMode.dark, const Offset(300, 50));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pumpAndSettle();
+    await transitionFuture;
+
+    expect(themeNotifier.value, ThemeMode.dark);
+    expect(ThemeTransition.isNavDarkNotifier.value, true);
+    expect(ThemeTransition.isAnimating, false);
+
+    // Switch back to light mode cleanly
+    final backFuture = state.animateThemeChange(ThemeMode.light, const Offset(300, 50));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pumpAndSettle();
+    await backFuture;
+
+    expect(themeNotifier.value, ThemeMode.light);
+    expect(ThemeTransition.isNavDarkNotifier.value, false);
+    expect(ThemeTransition.isAnimating, false);
+  });
+
   testWidgets('KreedaBottomNav dual-island floating bar renders, switches tabs with bounce, and activates Create FAB', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(360 * 3, 780 * 3);
     tester.view.devicePixelRatio = 3.0;
